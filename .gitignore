@@ -3,6 +3,13 @@
 .RData
 .Ruserdata
 *.Rproj
-# custom
+# archive
 2020/
+# don't need this
 form-w4-kolenikov.pdf
+# produced by xarnigan
+libs/
+# data and other binary files
+PDB/
+AbtLogo2.png
+libs

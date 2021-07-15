@@ -1,0 +1,675 @@
+---
+title: "PDB stratified sample"
+output:
+  html_notebook:
+    toc: true
+    code_folding: hide
+  html_document:
+    df_print: paged
+    toc: true
+---
+
+## Libraries
+
+```{r libraries, message=FALSE, warning=FALSE}
+libs <- c('tidyverse', 'here', 'optimx', 'janitor', 'knitr', 'kableExtra')
+for( l in libs) {
+  library(l, character.only = TRUE)
+}
+#' Format a table for HTML output with striped rows if HTML, or simply display if interactive
+#' @param   x an input table
+#' @return  a formatted table to be displayed if necessary
+#' @export
+maybe_kable <- function(x, bg='white') {
+  # x is likely a data frame or a tibble
+  if (!is.data.frame(x)) return(x)
+  else {
+    if (interactive()) return(x)
+    else {
+      # make it a nice kable
+      x %>% 
+        knitr::kable(format.args = list(big.mark=" ")) %>% 
+        kableExtra::row_spec(0,color='white',background="#48A9C5") %>% 
+        row_spec(1:nrow(x), color=ifelse(bg=='black', '#d0d3d4', 'black') ) -> tx # header colors
+      if (nrow(x)>1) { # alternating rows 
+        if (bg=='white') {
+          tx %>% row_spec(seq(from=2,to=nrow(x),by=2), background = '#dfd1a7') -> tx
+        } else if (bg=='black') {
+          tx %>% row_spec(seq(from=2,to=nrow(x),by=2), background = '#789d4a') -> tx 
+        }
+      }
+      return(tx)
+    }
+  }
+}
+```
+
+## PDB CT data
+
+```{r pdb, message=FALSE, warning=FALSE}
+read_csv(here('pdb','pdb2021trv3_ct.csv')) %>% mutate( 
+    pct_NH_black_alone = NH_Blk_alone_ACS_15_19 / Tot_Population_ACS_15_19,
+    pct_hisp           = Hispanic_ACS_15_19 / Tot_Population_ACS_15_19,
+    pct_minority       = pct_NH_black_alone + pct_hisp
+  ) -> PDB_CT
+```
+
+## Sample design targets
+
+```{r targets}
+target_n <- 2500
+target_black <- 500
+target_hisp <- 500
+```
+
+We need to create a sample of adults in the state of Connecticut,
+with the target of `r target_n`, 
+and oversample targets for racial/ethnic minorities:
+
+* Black/African American: `r target_black`
+* Hispanic: `r target_hisp`
+
+
+## Sampling design foundation
+
+Four strata:
+
+1. high Black/AA: 
+  cutoff parameter for the census tracts with the highest concentration of NH Black
+2. high Hispanic: 
+  cutoff parameter for the census tracts with the highest concentration of Hispanics
+  that are not in strata 1
+3. mixed minority: other tracts with moderate to high concentration of minorities
+4. white: tracts with low density of NH Blacks and Hispanics
+
+## Optimization target
+
+For the given sample size of `r target_n`, we want to minimize the
+unequal weighting design effect $1+CV^2$.
+
+## Sandbox 
+
+```{r strata4, echo=FALSE}
+above_black <- 0.4
+above_hisp  <- 0.6
+above_minor <- 0.3
+PDB_CT %>% mutate(strata4 = case_when(
+  pct_NH_black_alone > above_black ~ 1,
+  pct_hisp  > above_hisp  ~ 2,
+  pct_minority > above_minor ~ 3,
+  TRUE ~ 4
+  )
+) -> PDB_CT4
+PDB_CT4 %>% group_by(strata4) %>%
+  summarize(
+    tracts = n(),
+    pop   = sum(Tot_Population_ACS_15_19),
+    black = sum(NH_Blk_alone_ACS_15_19),
+    hisp  = sum(Hispanic_ACS_15_19),
+    RR    = 1 - weighted.mean(x=Low_Response_Score,
+                              w=Tot_Population_ACS_15_19, 
+                              na.rm=TRUE)/100) %>% 
+  mutate(
+    n_field = case_when(
+      strata4 == 1 ~ 800,
+      strata4 == 2 ~ 800,
+      strata4 == 3 ~ 800,
+      strata4 == 4 ~ 1000
+    ),
+    n_total = floor(n_field * RR),
+    n_black = floor(n_field * RR * black / pop),
+    n_hisp  = floor(n_field * RR * hisp / pop)
+  ) -> CT4_sample
+```
+
+Using the cutoffs:
+
+1. high Black/AA: `r above_black`
+2. high Hispanic: `r above_hisp`
+3. mixed minority: `r above_minor`
+4. white: all others
+
+```{r print_design}
+bind_rows( CT4_sample %>% mutate(strata4=as.character(strata4)),
+           CT4_sample %>% select(starts_with("n_"), tracts, pop, black, hisp) %>% 
+           summarize_all(sum) %>% mutate(strata4='Total')) %>% maybe_kable()
+```
+
+## Effective sample size
+
+```{r UWE_DEFF}
+(CT4_sample %>% 
+  mutate(weight=pop/n_total) %>% 
+  summarise( n_wgt = sum(n_total*weight), 
+             n_wgt2 = sum(n_total*weight*weight),
+             n = sum(n_total) ) %>% 
+  mutate(UWE_DEFF4 = n_wgt2 * n / (n_wgt*n_wgt) ) %>% 
+  select(UWE_DEFF4) %>% unlist() -> UWE_DEFF4)
+```
+
+This is about the same as the original design with two strata that had UWE DEFF of 1.66.
+
+## Assemble to a function
+
+To apply optimization algorithms available in R, one needs to have
+a function that responds to the input parameters and returns the value
+to be minimized.
+
+```{r obj_function}
+#' compute penalized design effect to optimize the stratified sample
+#'
+#' @param above_black   % cutoff for the high black concentration stratum
+#' @param above_hisp    % cutoff for the high Hispanic concentration stratum
+#' @param above_minor   % cutoff for the high minority concentration
+#' @param lop1          log odds ratio of stratum 1 vs. stratum 4
+#' @param lop2          log odds ratio of stratum 2 vs. stratum 4
+#' @param lop3          log odds ratio of stratum 3 vs. stratum 4
+#' @param target_n      target sample size (inherited from environment)
+#' @param target_black  target sample size (inherited from environment)
+#' @param target_hisp   target sample size (inherited from environment)
+#' @param minsize       minimum number of tracts per stratum (default 30)
+#' @param data          the sampling frame data source, PDB_CT in reality
+#' @param verbose       additional output is provided (off by default)
+#' @return              A list with the following components:
+#'
+#'                      all numeric inputs passed through as is
+#'                      transformed strata proportions
+#'                      \code{deff}: unequal weighting design effect
+#'                      \code{fobj}: design effect with penalties
+#'                      \code{sample_design}: the data frame with the resulting design
+#' @export
+design4 <- function( 
+  above_black, above_hisp, above_minor,
+  lop1, lop2, lop3,
+  minsize = 30,
+  data = PDB_CT,
+  # target_n = target_n, target_black=target_black, target_hisp=target_hisp,
+  verbose = FALSE) {
+  
+  if (above_black<0 | above_black > 1 | above_hisp<0 | above_hisp >1 | 
+      above_minor<0 | above_minor > 1 ) return( list(fobj=1e20) )
+  
+  # strata proportions
+  p1 <- exp(lop1)/(exp(lop1)+exp(lop2)+exp(lop3)+1)
+  p2 <- exp(lop2)/(exp(lop1)+exp(lop2)+exp(lop3)+1)
+  p3 <- exp(lop3)/(exp(lop1)+exp(lop2)+exp(lop3)+1)
+  p4 <- exp(0)/(exp(lop1)+exp(lop2)+exp(lop3)+1)
+  if ( abs( p1 + p2 + p3 + p4 - 1 ) > 1e-5 ) {
+    stop("Strata proportions are misformed: ", paste(p1,p2,p3,p4, collapse=", "))
+  }
+  
+  # stratify
+  data %>% mutate(strata4 = case_when(
+    pct_NH_black_alone > above_black ~ 1,
+    pct_hisp  > above_hisp  ~ 2,
+    pct_minority > above_minor ~ 3,
+    TRUE ~ 4
+  ) ) %>% 
+  select(GIDTR,Tot_Population_ACS_15_19,NH_Blk_alone_ACS_15_19,
+         Hispanic_ACS_15_19,Low_Response_Score,strata4) -> data4
+  
+  # first pass at sample size
+  data4 %>% group_by(strata4) %>%
+    summarize(
+      tracts = n(),
+      pop   = sum(Tot_Population_ACS_15_19),
+      black = sum(NH_Blk_alone_ACS_15_19),
+      hisp  = sum(Hispanic_ACS_15_19),
+      RR    = 1 - weighted.mean(x=Low_Response_Score,
+                                w=Tot_Population_ACS_15_19, 
+                                na.rm=TRUE)/100) %>% 
+    mutate(
+      n1_field = case_when(
+        strata4 == 1 ~ 1000*p1,
+        strata4 == 2 ~ 1000*p2,
+        strata4 == 3 ~ 1000*p3,
+        strata4 == 4 ~ 1000*p4
+      ),
+      n1_total = (n1_field * RR),
+      n1_black = (n1_field * RR * black / pop),
+      n1_hisp  = (n1_field * RR * hisp / pop)
+    ) %>% ungroup() -> data4_sample1
+
+  n1 <- sum(data4_sample1$n1_total)
+  
+  if (verbose) {
+    print(data4_sample1)
+    print(n1)
+    print(target_n)
+  }
+  
+  # second pass at the sample size
+  data4_sample1 %>% mutate(
+    n2_field = n1_field * target_n/n1,
+    n2_total = n2_field * RR,
+    n2_black = n2_field * RR * black / pop,
+    n2_hisp  = n2_field * RR * hisp / pop
+  ) %>% select(-starts_with("n1_")) -> data4_sample
+  if (is.na(sum(data4_sample$n2_total))) {
+    print(data4_sample)
+    stop("Total sample size does not match up: ", sum(data4_sample$n2_total) )
+  }
+  if( abs( sum(data4_sample$n2_total) - target_n ) > 1e-4 ) {
+    print(data4_sample)
+    stop("Total sample size does not match up: ", sum(data4_sample$n2_total) )
+  }
+  
+  # DEFF
+  data4_sample %>% 
+    mutate(weight=pop/n2_total) %>% 
+    summarise( n_wgt = sum(n2_total*weight), 
+               n_wgt2 = sum(n2_total*weight*weight),
+               n = sum(n2_total) ) %>% 
+    mutate(UWE_DEFF = n_wgt2 * n / (n_wgt*n_wgt) ) %>% 
+    select(UWE_DEFF) %>% unlist() -> UWE_DEFF
+  names(UWE_DEFF) <- ''
+  
+  # penalties
+  fobj <- UWE_DEFF
+  ### for missing the oversample targets
+  fobj <- fobj + log( 1 + min( c( sum(data4_sample$n2_black)-target_black, 0 ) )^2 )
+  fobj <- fobj + log( 1 + min( c( sum(data4_sample$n2_hisp) -target_hisp,  0 ) )^2 )
+  
+  ### for strata sizes that are too small
+  for(i in 1:nrow(data4_sample)) {
+    fobj <- fobj + log(1 + min( c(unlist(data4_sample[i,"tracts"])-minsize, 0) )^2 )
+  }
+  
+  ### for absent strata
+  fobj <- fobj + (nrow(data4_sample)-4)^2
+  
+  if (is.na(fobj)) {
+    print(c(  above_black, above_hisp, above_minor,
+        lop1, lop2, lop3))
+    print(data4_sample)
+    stop("Invalid objective function value ", fobj )
+  }
+
+  # return
+  rlist  <-       list(
+        above_black = above_black,
+        above_hisp  = above_hisp,
+        above_minor = above_minor,
+        n_total     = sum(data4_sample$n2_total),
+        n_black     = sum(data4_sample$n2_black),
+        n_hisp      = sum(data4_sample$n2_hisp),
+        deff        = UWE_DEFF,
+        p1          = p1,
+        p2          = p2,
+        p3          = p3,
+        p4          = p4,
+        fobj        = fobj,
+        sample_design = (data4_sample %>% select( - starts_with('n1_')))
+      )
+  if (verbose) {
+    print(data4_sample)
+    print(rlist)
+  }
+  
+  return( rlist )  
+}
+```
+
+Try some values:
+```{r try_some}
+design4(
+  above_black=0.4, above_hisp=0.4, above_minor=0.3, minsize = 30,
+  lop1=-0.5, lop2=-0.5, lop3=-0.5,
+  verbose = TRUE) %>% maybe_kable()
+design4(
+  above_black=0.4, above_hisp=0.5, above_minor=0.5, minsize = 30,
+  lop1=-0.85, lop2=-0.85, lop3=-0.85,
+  verbose = TRUE) %>% maybe_kable()
+```
+
+## Optimization
+
+The above function needs to be made compatible with `stats::optim()` and
+`library(optimx)`, which expect a function that accepts a vector of parameters,
+and returns a scalar value of the function to be optimized.
+
+```{r scalar_return}
+#' wrapper around design4() that takes inputs as a vector
+#' @param par   vector input of c(above_black, above_hisp, above_minor, lop1, lop2, lop3)
+#' @return      the penalized deff / design4()$fobj
+#' @export
+design4_opt <- function(par) {
+  
+  design4_return <- tryCatch( design4(
+    above_black = par[1], above_hisp=par[2], above_minor=par[3],
+    lop1=par[4], lop2=par[5], lop3=par[6]
+  )$fobj ,
+    error = function(e) 1000
+  )
+  
+  return(design4_return)
+}
+design4_opt(c(0.4,0.4,0.3,-0.5,-0.5,-0.5))
+```
+
+Let us now try the different optimization routines and methods available.
+
+## Stats (base R) package
+
+### stats::nlm()
+
+Newton-Raphson optimization in `stats::nlm()`:
+
+```{r stats_nlm}
+(st_nlm.time <- system.time(st_nlm <- stats::nlm(f=design4_opt,p=c(0.4,0.4,0.3,-0.5,-0.5,-0.5))))
+st_nlm
+```
+
+The help file states:
+
+> code == 3: 
+last global step failed to locate a point lower than estimate. 
+Either estimate is an approximate local minimum of the function 
+or steptol is too small.
+> code == 4:
+iteration limit exceeded.
+
+Optimization took `r st_nlm.time["elapsed"]` seconds and 
+`r ifelse(st_nlm$code==3,"converged succesfully","did not converge")`.
+The implied design is:
+
+```{r stats_nlm_design}
+nlmo_design <- design4(
+  above_black=st_nlm$estimate[1], 
+  above_hisp =st_nlm$estimate[2], 
+  above_minor=st_nlm$estimate[3], 
+  lop1=st_nlm$estimate[4], 
+  lop2=st_nlm$estimate[5], 
+  lop3=st_nlm$estimate[6])
+nlmo_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(nlmo_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(nlmo_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(nlmo_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+  janitor::adorn_totals("row") %>%
+  mutate(across(where(is.numeric),round)) %>%
+  maybe_kable()
+```
+
+It produces the design effect of `r nlmo_design$deff`, satisfies the sample size targets,
+and did not move the strata cutoff definitions at all.
+
+### optim: Nelder-Mead
+
+```{r nelder_mead}
+( st_nm.time <- system.time(
+  st_nm <- stats::optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method="Nelder-Mead",
+  control=list(maxit=5000,trace=0))) )
+st_nm
+```
+
+The help file states:
+
+> convergence == 0 indicates successful completion.
+
+Optimization took `r st_nm.time["elapsed"]` seconds and 
+`r ifelse(st_nm$convergence==0,"converged succesfully","did not converge")`.
+The implied design is:
+
+```{r stats_nmo_design}
+st_nm_design <- design4(
+  above_black=st_nm$par[1], 
+  above_hisp =st_nm$par[2], 
+  above_minor=st_nm$par[3], 
+  lop1=st_nm$par[4], 
+  lop2=st_nm$par[5], 
+  lop3=st_nm$par[6])
+st_nm_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(st_nm_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(st_nm_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(st_nm_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+  mutate(across(where(is.numeric),round)) %>%
+  janitor::adorn_totals("row") %>%
+  maybe_kable()
+```
+
+DEFF is successful at `r st_nm_design$deff`.
+
+### optim: simulated annealing
+
+```{r optim_sann}
+sanno.time <- system.time(sanno <- optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method="SANN",
+  control=list(temp=0.2,tmax=40,trace=3,maxit=5000)))
+sanno
+```
+Optimization took `r sanno.time["elapsed"]` seconds. 
+It is unclear whether the convergence code of `r sanno$convergence==0` means much
+in the context of the method.
+The implied design is:
+
+```{r stats_sanno_design}
+sanno_design <- design4(
+  above_black=sanno$par[1], 
+  above_hisp =sanno$par[2], 
+  above_minor=sanno$par[3], 
+  minsize = 30,
+  lop1=sanno$par[4], 
+  lop2=sanno$par[5], 
+  lop3=sanno$par[6])
+sanno_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(sanno_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(sanno_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(sanno_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+  mutate(across(where(is.numeric),round)) %>%
+  janitor::adorn_totals("row") %>%
+  maybe_kable()
+```
+
+DEFF is improved at `r sanno_design$deff` but does not reach
+the better levels produced by the deterministic algorithms.
+
+
+### optim: BFGS
+
+```{r optim_bfgs}
+bfgso.time <- system.time(bfgso <- optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method="BFGS"))
+bfgso
+```
+
+The design effect is OK at `r bfgso$value`.
+
+Optimization took `r bfgso.time["elapsed"]` seconds and 
+`r ifelse(bfgso$convergence==0,"converged succesfully","did not converge")`.
+The implied design is:
+
+```{r stats_bfgso_design}
+bfgso_design <- design4(
+  above_black=bfgso$par[1], 
+  above_hisp =bfgso$par[2], 
+  above_minor=bfgso$par[3], 
+  minsize = 30,
+  lop1=bfgso$par[4], 
+  lop2=bfgso$par[5], 
+  lop3=bfgso$par[6])
+bfgso_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(bfgso_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(bfgso_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(bfgso_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+  mutate(across(where(is.numeric),round)) %>%
+  janitor::adorn_totals("row") %>%
+  maybe_kable()
+```
+
+
+### optim: L-BFGS-B
+
+```{r optim_lbfgsb}
+(boxo <- optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method="L-BFGS-B",
+  lower=c(0.2,0.2,0.2,-5,-5,-5), upper=c(0.9,0.9,0.9,5,5,5),control=list(trace=3)))
+```
+
+Optimization could not get very far.
+The design effect isn't that "great" at `r boxo$value`.
+
+The implied design is:
+
+```{r stats_boxo_design}
+design4(
+  above_black=boxo$par[1], 
+  above_hisp =boxo$par[2], 
+  above_minor=boxo$par[3], 
+  minsize = 30,
+  lop1=boxo$par[4], 
+  lop2=boxo$par[5], 
+  lop3=boxo$par[6])
+```
+
+## Optimx package
+
+Package `optimx` provides access to about a dozen optimization methods with
+a reasonably common interface. 
+We will try a few. Note the exit codes `convcode`:
+
+- 0 indicates successful convergence. Various methods may or may not return sufficient information to allow all the codes to be specified. An incomplete list of codes includes
+- 1 indicates that the iteration limit `maxit` had been reached.
+- 20 indicates that the initial set of parameters is inadmissible
+- 21 indicates that an intermediate set of parameters is inadmissible.
+
+### optimx::optimx, method='BFGS'
+
+```{r optimx_bfgs}
+(xo_bfgs.time <- system.time(
+  xo_bfgs <- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method='BFGS')))
+xo_bfgs
+```
+
+Optimization took `r xo_bfgs.time["elapsed"]` seconds and 
+`r ifelse(xo_bfgs$convcode==0,"converged succesfully","did not converge")`.
+
+The implied design is:
+
+```{r optimx_bfgs_design}
+xo_bfgs_design <- design4(
+  above_black=xo_bfgs$p1, 
+  above_hisp =xo_bfgs$p2, 
+  above_minor=xo_bfgs$p3, 
+  lop1=xo_bfgs$p4, 
+  lop2=xo_bfgs$p5, 
+  lop3=xo_bfgs$p6)
+xo_bfgs_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(xo_bfgs_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(xo_bfgs_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(xo_bfgs_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>%
+  janitor::adorn_totals("row") %>%
+  mutate(across(where(is.numeric),round)) %>%
+  select(strata4,definition, tracts, starts_with("n2")) %>%
+  maybe_kable()
+```
+
+It produces the design effect of `r xo_bfgs_design$deff` 
+and overshot one of the subpopulation sample size targets.
+It failed to move the cutoffs by much.
+
+### optimx::optimx, method='Nelder-Mead'
+
+```{r optimx_nm1}
+(xo_nm1.time <- system.time(
+  xo_nm1 <- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method='Nelder-Mead')))
+xo_nm1
+```
+
+Optimization took `r xo_nm1.time["elapsed"]` seconds and 
+`r ifelse(xo_nm1$convcode==0,"converged succesfully","did not converge")` 
+with the default number of iterations.
+That number was increased to 2000 from the default 500.
+
+```{r optimx_nm2}
+(xo_nm2.time <- system.time(
+  xo_nm2 <- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),
+                           method='Nelder-Mead', itnmax=2000)))
+xo_nm2
+```
+
+Optimization took `r xo_nm2.time["elapsed"]` seconds and 
+`r ifelse(xo_nm2$convcode==0,"converged succesfully","did not converge")`.
+
+
+The implied design is:
+
+```{r optimx_nm_design}
+xo_nm_design <- design4(
+  above_black=xo_nm2$p1, 
+  above_hisp =xo_nm2$p2, 
+  above_minor=xo_nm2$p3, 
+  lop1=xo_nm2$p4, 
+  lop2=xo_nm2$p5, 
+  lop3=xo_nm2$p6)
+xo_nm_design$sample_design %>% 
+  select(-pop, -black, -hisp, -RR) %>% 
+  janitor::adorn_totals("row") %>%
+  mutate(across(where(is.numeric),round)) %>%
+  mutate(
+    definition = case_when(
+      strata4 == 1 ~ paste0("> ", round(xo_nm_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(xo_nm_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(xo_nm_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White")
+  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+  maybe_kable()
+```
+
+It produces the design effect of `r xo_nm_design$deff` 
+and generally gives the right sample sizes. The results seem to match
+those of `stats::optim(method="Nelder-Mead")`.
+
+## Conclusions
+
+Design effects achieved:
+
+```{r deff_table}
+design_df <- data.frame(design=ls()[which(str_detect(ls(),"_design"))], deff=NA)
+for (i in 1:nrow(design_df)) {
+  this_design <- get( design_df[i,"design"] )
+  design_df[i,"deff"] <- this_design$deff
+}
+design_df %>% maybe_kable()
+```
+
+- The gradient-based methods (Newton-Raphson in `stats::nlm()`; 
+  BFGS in `stats::optim()` or `optimx::optimx()`) had hard times moving out
+  of the initial positions on cutoffs. That should not be surprising: 
+  an infinitesimal change in the cutoff is not going to move any tracts 
+  from one stratum to another and hence change the objective function.
+- Nelder-Mead simplex optimization (`stats::optim()` and `optimx::optimx()`)  
+  did move those cutoffs, but interestingly it did not improve the design effect
+  one least bit. 
+    * It should be noted that N-M achieved a corner solution for the
+      "high Black density" stratum with 30 tracts in it, which had likely limited 
+      the ability of the method to optimize any further.
+
+## R Markdown
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. 
+When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk 
+or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 

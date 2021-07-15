@@ -1,7 +1,7 @@
 ---
 title: "Sample design using the U.S. Census PDB"
 author: "Stas Kolenikov"
-date: "6 July 2020"
+date: "21 July 2021"
 # output: html_document
 output: 
   xaringan::moon_reader:
@@ -17,6 +17,33 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, fig.height=5.5, fig.width=8)
+#' Format a table for HTML output with striped rows if HTML, or simply display if interactive
+#' @param   x an input table
+#' @return  a formatted table to be displayed if necessary
+#' @export
+maybe_kable <- function(x, bg='black') {
+  # x is likely a data frame or a tibble
+  if (!is.data.frame(x)) return(x)
+  else {
+    if (interactive()) return(x)
+    else {
+      # make it a nice kable
+      x %>% 
+        knitr::kable(format.args = list(big.mark=" ")) %>% 
+        kableExtra::row_spec(0,color='white',background="#48A9C5") %>% 
+        row_spec(1:nrow(x), color=ifelse(bg=='black', '#d0d3d4', 'black') ) -> tx # header colors
+      if (nrow(x)>1) { # alternating rows 
+        if (bg=='white') {
+          tx %>% row_spec(seq(from=2,to=nrow(x),by=2), background = '#dfd1a7') -> tx
+        } else if (bg=='black') {
+          tx %>% row_spec(seq(from=2,to=nrow(x),by=2), background = '#789d4a') -> tx 
+        }
+      }
+      return(tx)
+    }
+  }
+}
+
 ```
 
 ## Outline
@@ -31,14 +58,14 @@ knitr::opts_chunk$set(echo = TRUE, fig.height=5.5, fig.width=8)
 ## Libraries
 
 ```{r libraries, message=FALSE, warning=FALSE}
-libs <- c('tidyverse', 'here', 'vtable', 'knitr', 
+libs <- c('tidyverse', 'here', 'knitr', # 'vtable',
           'xaringanthemer', 'kableExtra')
 for( l in libs) {
   library(l, character.only = TRUE)
 }
 ```
 
-```{r xaringan, echo=FALSE}
+```{r technical_stuff, echo=FALSE}
 style_solarized_dark()
 style_xaringan(
   background_color = '#000000',
@@ -71,14 +98,18 @@ class: inverse
 
 ## Planning Databases
 
-https://www.census.gov/topics/research/guidance/planning-databases.2020.html
+https://www.census.gov/topics/research/guidance/planning-databases.2021.html
 
 ---
 
 ## PDB data
 
 ```{r pdb, message=FALSE, warning=FALSE}
-PDB <- read_csv('pdb2020trv2_us.csv')
+if (file.exists(here('PDB','pdb2021trv3_ct.csv'))) {
+  PDB_CT <- read_csv(here('PDB','pdb2021trv3_ct.csv'))
+} else {
+  PDB_US <- read_csv(here('PDB','pdb2021trv3_us.csv'))
+}
 ```
 
 ---
@@ -133,16 +164,19 @@ Simplifications:
 
 ## Connecticut
 
-```{r CT}
-PDB %>% filter(State=='09', !is.na(Tot_Population_ACS_14_18), 
-               Tot_Population_ACS_14_18 > 0 ) -> PDB_CT 
+```{r CT, message=FALSE}
+if (!exists("PDB_CT")) {
+  PDB_US %>% filter(State=='09', !is.na(Tot_Population_ACS_15_19), 
+               Tot_Population_ACS_15_19 > 0 ) -> PDB_CT 
+  # export
+  write_csv(PDB_CT, here('PDB','pdb2021trv3_ct.csv'))
+}
 PDB_CT %>% 
   group_by(State, State_name) %>% 
   summarize(tracts=n(), 
-    adult_pop = sum( Pop_18_24_ACS_14_18 + Pop_25_44_ACS_14_18 + 
-                   Pop_45_64_ACS_14_18 + Pop_65plus_ACS_14_18) ) %>% 
-  kable() %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+    adult_pop = sum( Pop_18_24_ACS_15_19 + Pop_25_44_ACS_15_19 + 
+                   Pop_45_64_ACS_15_19 + Pop_65plus_ACS_15_19) ) %>% 
+  maybe_kable()
 ```
 
 ---
@@ -160,8 +194,8 @@ to achieve the target sample sizes.
 
 ```
 PDB_CT %>% mutate( 
-  pct_NH_black_alone = NH_Blk_alone_ACS_14_18 / Tot_Population_ACS_14_18,
-  pct_hisp           = Hispanic_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_NH_black_alone = NH_Blk_alone_ACS_15_19 / Tot_Population_ACS_15_19,
+  pct_hisp           = Hispanic_ACS_15_19 / Tot_Population_ACS_15_19,
   pct_minority       = pct_NH_black_alone + pct_hisp
 ) -> PDB_CT
 ggplot(data=PDB_CT) + 
@@ -177,23 +211,32 @@ to achieve the target sample sizes.
 
 ```{r pct_minority, message=FALSE, warning=FALSE, echo=FALSE}
 PDB_CT %>% mutate( 
-  pct_NH_black_alone = NH_Blk_alone_ACS_14_18 / Tot_Population_ACS_14_18,
-  pct_hisp           = Hispanic_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_NH_black_alone = NH_Blk_alone_ACS_15_19 / Tot_Population_ACS_15_19,
+  pct_hisp           = Hispanic_ACS_15_19 / Tot_Population_ACS_15_19,
   pct_minority       = pct_NH_black_alone + pct_hisp
 ) -> PDB_CT
-ggplot(data=PDB_CT) + 
-  geom_histogram(aes(x=pct_minority), color='#48A9C5')
+ggplot(data=PDB_CT %>% mutate(pct_minority = pct_minority*100)) + 
+  geom_histogram(aes(x=pct_minority), color='#48A9C5') +
+  xlab('% non-white') + ylab('# of tracts') + theme_light()
 ```
 
 ---
 
 ## Beware of nonresponse!
 
-```{r minority_vs_LRS, warning=FALSE}
-ggplot(data=(PDB_CT %>% rename(`Total Pop`=Tot_Population_ACS_14_18))) +
+```
+ggplot(data=(PDB_CT) +
   geom_point(aes(x=pct_minority,y=Low_Response_Score,
-                 size=`Total Pop`),
-                 fill='#48A9C5', colour='black', shape=21)
+                 size=Tot_Population_ACS_15_19) )
+```
+
+```{r minority_vs_LRS, warning=FALSE, echo=FALSE}
+ggplot(data=(PDB_CT %>% rename(`Tract Pop`=Tot_Population_ACS_15_19) %>% mutate(pct_minority=pct_minority*100))) +
+  geom_point(aes(x=pct_minority,y=Low_Response_Score,
+                 size=`Tract Pop`),
+                 fill='#48A9C5', colour='black', shape=21) +
+  xlab('% non-white') + ylab('Low Response Score') +
+  theme_light()
 ```
 
 ---
@@ -203,7 +246,7 @@ ggplot(data=(PDB_CT %>% rename(`Total Pop`=Tot_Population_ACS_14_18))) +
 ```{r RR}
 PDB_CT %>% summarize( 
   LRS = weighted.mean(x=Low_Response_Score,
-                      w=Tot_Population_ACS_14_18, 
+                      w=Tot_Population_ACS_15_19, 
                       na.rm=TRUE) ) %>%
   select(LRS) %>% unlist() -> LRS
 ```
@@ -224,11 +267,11 @@ PDB_CT %>% mutate(strata2 = if_else(pct_minority > 0.5, 1, 2) ) %>%
     tract        = n(),
     min_minority = min(pct_minority),
     max_minority = max(pct_minority),
-    pop   = sum(Tot_Population_ACS_14_18),
-    black = sum(NH_Blk_alone_ACS_14_18),
-    hisp  = sum(Hispanic_ACS_14_18),
+    pop   = sum(Tot_Population_ACS_15_19),
+    black = sum(NH_Blk_alone_ACS_15_19),
+    hisp  = sum(Hispanic_ACS_15_19),
     RR    = 1 - weighted.mean(x=Low_Response_Score,
-                              w=Tot_Population_ACS_14_18, 
+                              w=Tot_Population_ACS_15_19, 
                               na.rm=TRUE)/100  
 ) -> CT_strata2
 ```
@@ -242,9 +285,7 @@ CT_strata2 %>% kable()
 ```
 
 ```{r CT_strata2, echo=FALSE}
-CT_strata2 %>% kable() %>%
-  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
-  row_spec(2, background = '#3e4040')                 # alternating rows 
+CT_strata2 %>% maybe_kable()
 ```
 
 ---
@@ -253,20 +294,26 @@ CT_strata2 %>% kable() %>%
 
 Compute anticipated number of Black/AA interviews; number of Hispanic interviews;
 adjust inputs until the results are acceptable 
-(overall sample size `r target_n`, 
-Black AA race/Hispanic ethnicity oversamples of `r target_hisp` each).
 
 ```{r trial_error2}
 CT_strata2 %>% mutate(
-  n_field = case_when(
-    strata2 == 1 ~ 2000,
-    strata2 == 2 ~ 1200
-  ),
+  n_field = case_when(strata2 == 1 ~ 2100, strata2 == 2 ~ 1100),
   n_total = floor(n_field * RR),
   n_black = floor(n_field * RR * black / pop),
-  n_hisp  = floor(n_field * RR * hisp / pop)
-) %>% select(strata2, starts_with('n_')) -> CT_strata2_design
+  n_hisp  = floor(n_field * RR * hisp / pop),
+  sampling_rate = n_field/pop*1e3
+) %>% select(strata2, sampling_rate, starts_with('n_')) -> CT_strata2_completes
 ```
+
+```{r trial_error2_print, echo=FALSE}
+maybe_kable(CT_strata2_completes)
+```
+
+Overall sample size: `r sum(CT_strata2_completes$n_total)` vs. `r target_n`, 
+Black AA race and Hispanic ethnicity oversamples of 
+`r sum(CT_strata2_completes$n_black)` and `r sum(CT_strata2_completes$n_hisp)`
+(vs. target `r target_hisp` each).
+
 
 ---
 
@@ -280,27 +327,27 @@ Black AA race/Hispanic ethnicity oversamples of `r target_hisp` each).
 ```{r trial_error2a, echo=FALSE}
 CT_strata2 %>% mutate(
   n_field = case_when(
-    strata2 == 1 ~ 2090,
-    strata2 == 2 ~ 1260
+    strata2 == 1 ~ 2115,
+    strata2 == 2 ~ 1230
   ),
   n_total = floor(n_field * RR),
   n_black = floor(n_field * RR * black / pop),
-  n_hisp  = floor(n_field * RR * hisp / pop)
-) %>% select(strata2, starts_with('n_')) -> CT_strata2_design
+  n_hisp  = floor(n_field * RR * hisp / pop),
+  sampling_rate = n_field/pop*1e3
+) %>% select(strata2, sampling_rate, starts_with('n_')) -> CT_strata2_completes
 ```
 
 ```
-bind_rows( CT_strata2_design %>% mutate(strata2=as.character(strata2)),
-           CT_strata2_design %>% select(starts_with("n_")) %>% 
+bind_rows( CT_strata2_completes %>% mutate(strata2=as.character(strata2)),
+           CT_strata2_completes %>% select(starts_with("n_")) %>% 
            summarize_all(sum) %>% mutate(strata2='Total')) %>% kable()
 ```
 
 ```{r CT_strata2_results, echo=FALSE}
-bind_rows( CT_strata2_design %>% mutate(strata2=as.character(strata2)),
-           CT_strata2_design %>% select(starts_with("n_")) %>% 
-           summarize_all(sum) %>% mutate(strata2='Total')) %>% kable() %>%
-  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
-  row_spec(2, background = '#3e4040')                 # alternating rows 
+bind_rows( CT_strata2_completes %>% mutate(strata2=as.character(strata2)),
+           CT_strata2_completes %>% select(starts_with("n_")) %>% 
+           summarize_all(sum) %>% mutate(strata2='Total') 
+  ) %>% maybe_kable() 
 ```
 
 ---
@@ -308,13 +355,11 @@ bind_rows( CT_strata2_design %>% mutate(strata2=as.character(strata2)),
 ## Simple weights
 
 ```{r weights}
-CT_strata2_design %>% 
+CT_strata2_completes %>% 
   full_join( CT_strata2 %>% select(strata2, pop), by='strata2') %>%
   mutate(weight=pop/n_total) %>% 
   select(strata2, n_field, n_total, pop, weight) -> CT_strata2_weights
-CT_strata2_weights %>% kable() %>%
-  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
-  row_spec(2, background = '#3e4040')                 # alternating row
+CT_strata2_weights %>% maybe_kable()
 ```
 
 ---
@@ -328,7 +373,7 @@ Unequal weighting design effect $1+{\rm CV}^2 \equiv 1 + L_{Kish}$ for this desi
              n_wgt2 = sum(n_total*weight*weight),
              n = sum(n_total) ) %>% 
   mutate(UWE_DEFF = n_wgt2 * n / (n_wgt*n_wgt) ) %>% 
-  select(UWE_DEFF) %>% unlist() -> UWE_DEFF)
+  select(UWE_DEFF) %>% unlist() -> UWE_DEFF2)
 ```
 
 ---
@@ -359,8 +404,8 @@ class: inverse
     - the above one had too many Hispanics relative to the target 
       (and relative to SRS; hence losses of efficiency)
 
-Stas' best design has DEFF of 1.24, but it involved heavy-handed numeric optimization
-with a ton of fiddling.
+Stas' best design has DEFF of about 1.23, but it involved heavy-handed numeric optimization
+with tons of fiddling with optimization parameters.
 
 ---
 
