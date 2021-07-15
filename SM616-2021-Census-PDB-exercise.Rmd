@@ -1,0 +1,398 @@
+---
+title: "Sample design using the U.S. Census PDB"
+author: "Stas Kolenikov"
+date: "6 July 2020"
+# output: html_document
+output: 
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ["xaringan-themer.css"]
+    nature:
+      highlightStyle: solarized-dark
+      highlightLines: true
+      countIncrementalSlides: false
+  ioslides_presentation:
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.height=5.5, fig.width=8)
+```
+
+## Outline
+
+1. The U.S. Census Planning Database, U.S. Census geography, race/ethnicity
+2. Survey sampling design target
+3. Stas' initial attempt
+4. Actual workshop -- challenge to improve upon Stas' work!
+
+---
+
+## Libraries
+
+```{r libraries, message=FALSE, warning=FALSE}
+libs <- c('tidyverse', 'here', 'vtable', 'knitr', 
+          'xaringanthemer', 'kableExtra')
+for( l in libs) {
+  library(l, character.only = TRUE)
+}
+```
+
+```{r xaringan, echo=FALSE}
+style_solarized_dark()
+style_xaringan(
+  background_color = '#000000',
+  text_color       = '#b7c9d3',
+  header_color     = '#DA291C',
+  title_slide_text_color = '#DA291C',
+  title_slide_background_color = '#DFD1A7',
+  title_slide_background_image = 'AbtLogo2.png',
+  title_slide_background_size	= '200px 100px',
+  title_slide_background_position	= 'bottom 10px left 20px',
+  inverse_text_color = '#000000',
+  inverse_header_color = '#7566A0',
+  inverse_background_color = '#DFD1A7',
+  inverse_text_shadow = TRUE,
+  background_image = 'AbtLogo2.png',
+  background_size	= '90px 45px',
+  background_position	= 'bottom 10px left 10px',
+  link_color       = '#7566A0',
+  code_inline_color = '#C3C6A8',
+  code_highlight_color = '#E87722'
+)
+```
+---
+
+class: inverse
+
+# The U.S. Census Bureau and its data
+
+---
+
+## Planning Databases
+
+https://www.census.gov/topics/research/guidance/planning-databases.2020.html
+
+---
+
+## PDB data
+
+```{r pdb, message=FALSE, warning=FALSE}
+PDB <- read_csv('pdb2020trv2_us.csv')
+```
+
+---
+
+## US Census Tracts
+
+* Tract $\subset$ county $\subset$ state
+
+* Tract population: about 4000
+
+https://www2.census.gov/geo/pdfs/education/CensusTracts.pdf
+
+---
+
+## Example tracts
+
+University of Michigan:
+
+- ACS profile ([MCDC](http://mcdc.missouri.edu/applications/acs/profiles/report.php?period=5&year=2018&g=14000US26161400200|05000US26161|04000US26|01000US))
+- Tiger boundaries: https://tigerweb.geo.census.gov/tigerweb/, 
+search for 500 S STATE ST, ANN ARBOR, MI, 48109
+
+Stas' residence:
+
+- ACS profile ([MCDC](http://mcdc.missouri.edu/applications/acs/profiles/report.php?period=5&year=2018&g=14000US29019001103|05000US29019|04000US29|01000US))
+- Tiger boundaries: https://tigerweb.geo.census.gov/tigerweb/, 
+search for CT 11.08 COLUMBIA, MO, 65203
+
+---
+
+class: inverse
+
+# Sample design task
+
+---
+
+## Sample design target
+
+We need to create a sample of adults in the state of 
+[https://en.wikipedia.org/wiki/Connecticut](Connecticut),
+with the target of `r (target_n <- 2500)`, 
+and oversample targets for racial/ethnic minorities:
+
+* Black/African American: `r (target_black <- 500)`
+* Hispanic: `r (target_hisp <- 500)`
+
+Simplifications:
+* disregard household size distributions between race/ethnicity groups
+* disregard the age distributions between race/ethnicity groups
+
+---
+
+## Connecticut
+
+```{r CT}
+PDB %>% filter(State=='09', !is.na(Tot_Population_ACS_14_18), 
+               Tot_Population_ACS_14_18 > 0 ) -> PDB_CT 
+PDB_CT %>% 
+  group_by(State, State_name) %>% 
+  summarize(tracts=n(), 
+    adult_pop = sum( Pop_18_24_ACS_14_18 + Pop_25_44_ACS_14_18 + 
+                   Pop_45_64_ACS_14_18 + Pop_65plus_ACS_14_18) ) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+---
+
+class: inverse
+
+# Stas' first steps
+
+---
+
+## Solution: stratified design
+
+Create several strata and vary sampling rates between them 
+to achieve the target sample sizes.
+
+```
+PDB_CT %>% mutate( 
+  pct_NH_black_alone = NH_Blk_alone_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_hisp           = Hispanic_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_minority       = pct_NH_black_alone + pct_hisp
+) -> PDB_CT
+ggplot(data=PDB_CT) + 
+  geom_histogram(aes(x=pct_minority), color='skyblue')
+```
+
+---
+
+## Solution: stratified design
+
+Create several strata and vary sampling rates between them 
+to achieve the target sample sizes.
+
+```{r pct_minority, message=FALSE, warning=FALSE, echo=FALSE}
+PDB_CT %>% mutate( 
+  pct_NH_black_alone = NH_Blk_alone_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_hisp           = Hispanic_ACS_14_18 / Tot_Population_ACS_14_18,
+  pct_minority       = pct_NH_black_alone + pct_hisp
+) -> PDB_CT
+ggplot(data=PDB_CT) + 
+  geom_histogram(aes(x=pct_minority), color='#48A9C5')
+```
+
+---
+
+## Beware of nonresponse!
+
+```{r minority_vs_LRS, warning=FALSE}
+ggplot(data=(PDB_CT %>% rename(`Total Pop`=Tot_Population_ACS_14_18))) +
+  geom_point(aes(x=pct_minority,y=Low_Response_Score,
+                 size=`Total Pop`),
+                 fill='#48A9C5', colour='black', shape=21)
+```
+
+---
+
+## Overall anticipated response rate
+
+```{r RR}
+PDB_CT %>% summarize( 
+  LRS = weighted.mean(x=Low_Response_Score,
+                      w=Tot_Population_ACS_14_18, 
+                      na.rm=TRUE) ) %>%
+  select(LRS) %>% unlist() -> LRS
+```
+
+The overall, population weighted low response score is `r LRS`.
+
+Thus for the target sample size of 2500, one needs to field about 
+`r (n_field <- ceiling(target_n/(1-LRS/100)))` cases.
+
+---
+
+## Two-strata solution: high vs. low minority tracts
+
+```{r two_strata}
+PDB_CT %>% mutate(strata2 = if_else(pct_minority > 0.5, 1, 2) ) %>%
+  group_by(strata2) %>%
+  summarize(
+    tract        = n(),
+    min_minority = min(pct_minority),
+    max_minority = max(pct_minority),
+    pop   = sum(Tot_Population_ACS_14_18),
+    black = sum(NH_Blk_alone_ACS_14_18),
+    hisp  = sum(Hispanic_ACS_14_18),
+    RR    = 1 - weighted.mean(x=Low_Response_Score,
+                              w=Tot_Population_ACS_14_18, 
+                              na.rm=TRUE)/100  
+) -> CT_strata2
+```
+
+---
+
+## Two-strata solution: high vs. low minority tracts
+
+```
+CT_strata2 %>% kable()
+```
+
+```{r CT_strata2, echo=FALSE}
+CT_strata2 %>% kable() %>%
+  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
+  row_spec(2, background = '#3e4040')                 # alternating rows 
+```
+
+---
+
+## Trial-and-error allocation
+
+Compute anticipated number of Black/AA interviews; number of Hispanic interviews;
+adjust inputs until the results are acceptable 
+(overall sample size `r target_n`, 
+Black AA race/Hispanic ethnicity oversamples of `r target_hisp` each).
+
+```{r trial_error2}
+CT_strata2 %>% mutate(
+  n_field = case_when(
+    strata2 == 1 ~ 2000,
+    strata2 == 2 ~ 1200
+  ),
+  n_total = floor(n_field * RR),
+  n_black = floor(n_field * RR * black / pop),
+  n_hisp  = floor(n_field * RR * hisp / pop)
+) %>% select(strata2, starts_with('n_')) -> CT_strata2_design
+```
+
+---
+
+## Trial-and-error allocation
+
+Compute anticipated number of Black/AA interviews; number of Hispanic interviews;
+adjust inputs until the results are acceptable 
+(overall sample size `r target_n`, 
+Black AA race/Hispanic ethnicity oversamples of `r target_hisp` each).
+
+```{r trial_error2a, echo=FALSE}
+CT_strata2 %>% mutate(
+  n_field = case_when(
+    strata2 == 1 ~ 2090,
+    strata2 == 2 ~ 1260
+  ),
+  n_total = floor(n_field * RR),
+  n_black = floor(n_field * RR * black / pop),
+  n_hisp  = floor(n_field * RR * hisp / pop)
+) %>% select(strata2, starts_with('n_')) -> CT_strata2_design
+```
+
+```
+bind_rows( CT_strata2_design %>% mutate(strata2=as.character(strata2)),
+           CT_strata2_design %>% select(starts_with("n_")) %>% 
+           summarize_all(sum) %>% mutate(strata2='Total')) %>% kable()
+```
+
+```{r CT_strata2_results, echo=FALSE}
+bind_rows( CT_strata2_design %>% mutate(strata2=as.character(strata2)),
+           CT_strata2_design %>% select(starts_with("n_")) %>% 
+           summarize_all(sum) %>% mutate(strata2='Total')) %>% kable() %>%
+  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
+  row_spec(2, background = '#3e4040')                 # alternating rows 
+```
+
+---
+
+## Simple weights
+
+```{r weights}
+CT_strata2_design %>% 
+  full_join( CT_strata2 %>% select(strata2, pop), by='strata2') %>%
+  mutate(weight=pop/n_total) %>% 
+  select(strata2, n_field, n_total, pop, weight) -> CT_strata2_weights
+CT_strata2_weights %>% kable() %>%
+  row_spec(0,color='white',background="#48A9C5") %>%  # header colors
+  row_spec(2, background = '#3e4040')                 # alternating row
+```
+
+---
+
+## Unequal weighting design effect
+
+Unequal weighting design effect $1+{\rm CV}^2 \equiv 1 + L_{Kish}$ for this design is:
+```{r deff}
+(CT_strata2_weights %>% 
+  summarise( n_wgt = sum(n_total*weight), 
+             n_wgt2 = sum(n_total*weight*weight),
+             n = sum(n_total) ) %>% 
+  mutate(UWE_DEFF = n_wgt2 * n / (n_wgt*n_wgt) ) %>% 
+  select(UWE_DEFF) %>% unlist() -> UWE_DEFF)
+```
+
+---
+
+class: inverse
+
+# Can you do better??
+
+
+---
+
+## Better solutions?
+
+* Better choice of the threshold in a two-strata solution?
+* Three strata? 
+    - two thresholds of minorities, combined?
+    - separate thresholds for Black/African Americans vs. Hispanics?
+* Four strata?
+* Minimize design effect?
+* Account for response rates at the tract level?
+
+---
+
+## Your turn now!
+
+* Breakout Zoom rooms, groups of ~4
+* Create a _better_ design:
+    - the above one had too many Hispanics relative to the target 
+      (and relative to SRS; hence losses of efficiency)
+
+Stas' best design has DEFF of 1.24, but it involved heavy-handed numeric optimization
+with a ton of fiddling.
+
+---
+
+## Further refinements
+
+* Adult vs. total population
+* Language barriers (speak English less than very well)
+    - partially incorporated in the Low Response Score
+    - limits the covered population
+* Residential households (vs. group quarters)
+* Vacant housing units
+* Lower response rates to non-federal surveys
+
+---
+
+## R Markdown
+
+This is an R Markdown `library(xaringan)` presentation. 
+Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. 
+For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+R version: `r R.version.string`.
+
+Package versions:
+
+```{r package_versions, echo=FALSE}
+pvers <- ''
+for( p in libs ) {
+  pvers <- paste0(pvers, 
+      '- library(',p, '):  version ', as.character(packageVersion(p)), 
+      '\n')
+}
+```
+
+`r pvers`
