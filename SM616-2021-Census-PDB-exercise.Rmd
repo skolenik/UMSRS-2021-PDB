@@ -415,6 +415,8 @@ class: inverse
 
 ## Your turn now!
 
+**Exercise 1**
+
 * Breakout Zoom rooms, groups of ~4
 * Create a _better_ design:
     - the above one had too many Hispanics relative to the target 
@@ -434,6 +436,43 @@ with tons of fiddling with optimization parameters.
 * Residential households (vs. group quarters)
 * Vacant housing units
 * Lower response rates to non-federal surveys
+
+---
+
+## Exercise 2: adjust response rate
+
+Based on your prior experience / existing literature on the surveys of this kind,
+you expect the overall response rate to be 15%.
+
+Adjust the parameters of your sampling design that you have produced so far
+in a way that the state-wide response rate on a SRS will be 15%.
+The `Low_Response_Score` variable will be informative on the relative
+performance of the different census tracts, but it would have to be modified 
+so that the anticipated response rates hover around the above target figure.
+This is an open-ended task: you would need to come up with a (mostly) justifiable
+approach to the task. 
+(A lot of survey statistics consists of inventing or adjusting things!)
+
+---
+
+## Exercise 3: cost-optimal design
+
+Suppose that you want to enroll more Hispanic respondents to the survey
+by providing materials in Spanish. Let us use the following assumptions:
+
+- the cost of the mailing increases by a factor of 2;
+- the response rate of Hispanic respondents who receive materials in Spanish 
+  increases by 50% (e.g. from 10% to 15%);
+- the Spanish mail materials are only sent in the stratum with the highest
+  concentration of Hispanic population;
+- the available budget allows for the mailing of 24,000 "basic" mail materials
+  in English only.
+
+Objective: adjust the sampling design to maximize the overall effective sample size
+while maintaining the subpopulation sample sizes of 500 Black/African American respondents
+and 500 Hispanic respondents.
+
+Does offering the instrument in Spanish really save money?
 
 ---
 
