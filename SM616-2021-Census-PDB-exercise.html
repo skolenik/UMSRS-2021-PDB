@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Sample design using the U.S. Census PDB</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Stas Kolenikov" />
+    <meta name="date" content="2021-07-21" />
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Sample design using the U.S. Census PDB
+### Stas Kolenikov
+### 21 July 2021
+
+---
+
+
+
+
+## Outline
+
+1. The U.S. Census Planning Database, U.S. Census geography, race/ethnicity
+2. Survey sampling design target
+3. Stas' initial attempt
+4. Actual workshop -- challenge to improve upon Stas' work!
+
+---
+
+## Libraries
+
+
+```r
+libs &lt;- c('tidyverse', 'here', 'knitr', # 'vtable',
+          'xaringanthemer', 'kableExtra')
+for( l in libs) {
+  library(l, character.only = TRUE)
+}
+```
+
+
+---
+
+class: inverse
+
+# The U.S. Census Bureau and its data
+
+---
+
+## Planning Databases
+
+https://www.census.gov/topics/research/guidance/planning-databases.2021.html
+
+---
+
+## PDB data
+
+
+```r
+if (file.exists(here('PDB','pdb2021trv3_ct.csv'))) {
+  PDB_CT &lt;- read_csv(here('PDB','pdb2021trv3_ct.csv'))
+} else {
+  PDB_US &lt;- read_csv(here('PDB','pdb2021trv3_us.csv'))
+}
+```
+
+---
+
+## US Census Tracts
+
+* Tract `\(\subset\)` county `\(\subset\)` state
+
+* Tract population: about 4000
+
+https://www2.census.gov/geo/pdfs/education/CensusTracts.pdf
+
+---
+
+## Example tracts
+
+University of Michigan:
+
+- ACS profile ([MCDC](http://mcdc.missouri.edu/applications/acs/profiles/report.php?period=5&amp;year=2018&amp;g=14000US26161400200|05000US26161|04000US26|01000US))
+- Tiger boundaries: https://tigerweb.geo.census.gov/tigerweb/, 
+search for 500 S STATE ST, ANN ARBOR, MI, 48109
+
+Stas' residence:
+
+- ACS profile ([MCDC](http://mcdc.missouri.edu/applications/acs/profiles/report.php?period=5&amp;year=2018&amp;g=14000US29019001103|05000US29019|04000US29|01000US))
+- Tiger boundaries: https://tigerweb.geo.census.gov/tigerweb/, 
+search for CT 11.08 COLUMBIA, MO, 65203
+
+---
+
+class: inverse
+
+# Sample design task
+
+---
+
+## Sample design target
+
+We need to create a sample of adults in the state of 
+[https://en.wikipedia.org/wiki/Connecticut](Connecticut),
+with the target of 2500, 
+and oversample targets for racial/ethnic minorities:
+
+* Black/African American: 500
+* Hispanic: 500
+
+Simplifications:
+* disregard household size distributions between race/ethnicity groups
+* disregard the age distributions between race/ethnicity groups
+
+---
+
+## Connecticut
+
+
+```r
+if (!exists("PDB_CT")) {
+  PDB_US %&gt;% filter(State=='09', !is.na(Tot_Population_ACS_15_19), 
+               Tot_Population_ACS_15_19 &gt; 0 ) -&gt; PDB_CT 
+  # export
+  write_csv(PDB_CT, here('PDB','pdb2021trv3_ct.csv'))
+}
+PDB_CT %&gt;% 
+  group_by(State, State_name) %&gt;% 
+  summarize(tracts=n(), 
+    adult_pop = sum( Pop_18_24_ACS_15_19 + Pop_25_44_ACS_15_19 + 
+                   Pop_45_64_ACS_15_19 + Pop_65plus_ACS_15_19) ) %&gt;% 
+  maybe_kable()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #48A9C5 !important;"&gt; State &lt;/th&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #48A9C5 !important;"&gt; State_name &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; tracts &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; adult_pop &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;color: #d0d3d4 !important;"&gt; 09 &lt;/td&gt;
+   &lt;td style="text-align:left;color: #d0d3d4 !important;"&gt; Connecticut &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 828 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2 831 241 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+class: inverse
+
+# Stas' first steps
+
+---
+
+## Solution: stratified design
+
+Create several strata and vary sampling rates between them 
+to achieve the target sample sizes.
+
+```
+PDB_CT %&gt;% mutate( 
+  pct_NH_black_alone = NH_Blk_alone_ACS_15_19 / Tot_Population_ACS_15_19,
+  pct_hisp           = Hispanic_ACS_15_19 / Tot_Population_ACS_15_19,
+  pct_minority       = pct_NH_black_alone + pct_hisp
+) -&gt; PDB_CT
+ggplot(data=PDB_CT) + 
+  geom_histogram(aes(x=pct_minority), color='skyblue')
+```
+
+---
+
+## Solution: stratified design
+
+Create several strata and vary sampling rates between them 
+to achieve the target sample sizes.
+
+![](SM616-2021-Census-PDB-exercise_files/figure-html/pct_minority-1.png)&lt;!-- --&gt;
+
+---
+
+## Beware of nonresponse!
+
+```
+ggplot(data=(PDB_CT) +
+  geom_point(aes(x=pct_minority,y=Low_Response_Score,
+                 size=Tot_Population_ACS_15_19) )
+```
+
+![](SM616-2021-Census-PDB-exercise_files/figure-html/minority_vs_LRS-1.png)&lt;!-- --&gt;
+
+---
+
+## Overall anticipated response rate
+
+
+```r
+PDB_CT %&gt;% summarize( 
+  LRS = weighted.mean(x=Low_Response_Score,
+                      w=Tot_Population_ACS_15_19, 
+                      na.rm=TRUE) ) %&gt;%
+  select(LRS) %&gt;% unlist() -&gt; LRS
+```
+
+The overall, population weighted low response score is 20.0746219.
+
+Thus for the target sample size of 2500, one needs to field about 
+3128 cases.
+
+---
+
+## Two-strata solution: high vs. low minority tracts
+
+
+```r
+PDB_CT %&gt;% mutate(strata2 = if_else(pct_minority &gt; 0.5, 1, 2) ) %&gt;%
+  group_by(strata2) %&gt;%
+  summarize(
+    tract        = n(),
+    min_minority = min(pct_minority),
+    max_minority = max(pct_minority),
+    pop   = sum(Tot_Population_ACS_15_19),
+    black = sum(NH_Blk_alone_ACS_15_19),
+    hisp  = sum(Hispanic_ACS_15_19),
+    RR    = 1 - weighted.mean(x=Low_Response_Score,
+                              w=Tot_Population_ACS_15_19, 
+                              na.rm=TRUE)/100  
+) -&gt; CT_strata2
+```
+
+---
+
+## Two-strata solution: high vs. low minority tracts
+
+```
+CT_strata2 %&gt;% kable()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; strata2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; tract &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; min_minority &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; max_minority &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; pop &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; black &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; hisp &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; RR &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 182 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 0.50134 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 0.9912892 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 704 096 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 213 395 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 294 119 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 0.7042099 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 646 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 0.00000 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 0.4997575 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 870 978 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 140 725 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 280 121 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 0.8225065 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## Trial-and-error allocation
+
+Compute anticipated number of Black/AA interviews; number of Hispanic interviews;
+adjust inputs until the results are acceptable 
+
+
+```r
+CT_strata2 %&gt;% mutate(
+  n_field = case_when(strata2 == 1 ~ 2100, strata2 == 2 ~ 1100),
+  n_total = floor(n_field * RR),
+  n_black = floor(n_field * RR * black / pop),
+  n_hisp  = floor(n_field * RR * hisp / pop),
+  sampling_rate = n_field/pop*1e3
+) %&gt;% select(strata2, sampling_rate, starts_with('n_')) -&gt; CT_strata2_completes
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; strata2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; sampling_rate &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_field &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_total &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_black &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_hisp &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2.9825478 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2 100 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 478 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 448 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 617 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 0.3831447 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 1 100 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 904 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 44 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 88 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+Overall sample size: 2382 vs. 2500, 
+Black AA race and Hispanic ethnicity oversamples of 
+492 and 705
+(vs. target 500 each).
+
+
+---
+
+## Trial-and-error allocation
+
+Compute anticipated number of Black/AA interviews; number of Hispanic interviews;
+adjust inputs until the results are acceptable 
+(overall sample size 2500, 
+Black AA race/Hispanic ethnicity oversamples of 500 each).
+
+
+
+```
+bind_rows( CT_strata2_completes %&gt;% mutate(strata2=as.character(strata2)),
+           CT_strata2_completes %&gt;% select(starts_with("n_")) %&gt;% 
+           summarize_all(sum) %&gt;% mutate(strata2='Total')) %&gt;% kable()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;color: white !important;background-color: #48A9C5 !important;"&gt; strata2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; sampling_rate &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_field &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_total &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_black &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_hisp &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;color: #d0d3d4 !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 3.0038517 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2 115 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 489 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 451 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 622 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 0.4284254 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 1 230 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 1 011 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 49 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 98 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;color: #d0d3d4 !important;"&gt; Total &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; NA &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 3 345 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2 500 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 500 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 720 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## Simple weights
+
+
+```r
+CT_strata2_completes %&gt;% 
+  full_join( CT_strata2 %&gt;% select(strata2, pop), by='strata2') %&gt;%
+  mutate(weight=pop/n_total) %&gt;% 
+  select(strata2, n_field, n_total, pop, weight) -&gt; CT_strata2_weights
+CT_strata2_weights %&gt;% maybe_kable()
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; strata2 &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_field &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; n_total &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; pop &lt;/th&gt;
+   &lt;th style="text-align:right;color: white !important;background-color: #48A9C5 !important;"&gt; weight &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 2 115 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 1 489 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 704 096 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;"&gt; 472.865 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 1 230 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 1 011 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 870 978 &lt;/td&gt;
+   &lt;td style="text-align:right;color: #d0d3d4 !important;background-color: #789d4a !important;"&gt; 2 839.741 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## Unequal weighting design effect
+
+Unequal weighting design effect `\(1+{\rm CV}^2 \equiv 1 + L_{Kish}\)` for this design is:
+
+```r
+(CT_strata2_weights %&gt;% 
+  summarise( n_wgt = sum(n_total*weight), 
+             n_wgt2 = sum(n_total*weight*weight),
+             n = sum(n_total) ) %&gt;% 
+  mutate(UWE_DEFF = n_wgt2 * n / (n_wgt*n_wgt) ) %&gt;% 
+  select(UWE_DEFF) %&gt;% unlist() -&gt; UWE_DEFF2)
+```
+
+```
+## UWE_DEFF 
+## 1.659822
+```
+
+---
+
+class: inverse
+
+# Can you do better??
+
+
+---
+
+## Better solutions?
+
+* Better choice of the threshold in a two-strata solution?
+* Three strata? 
+    - two thresholds of minorities, combined?
+    - separate thresholds for Black/African Americans vs. Hispanics?
+* Four strata?
+* Minimize design effect?
+* Account for response rates at the tract level?
+
+---
+
+## Your turn now!
+
+* Breakout Zoom rooms, groups of ~4
+* Create a _better_ design:
+    - the above one had too many Hispanics relative to the target 
+      (and relative to SRS; hence losses of efficiency)
+
+Stas' best design has DEFF of about 1.23, but it involved heavy-handed numeric optimization
+with tons of fiddling with optimization parameters.
+
+---
+
+## Further refinements
+
+* Adult vs. total population
+* Language barriers (speak English less than very well)
+    - partially incorporated in the Low Response Score
+    - limits the covered population
+* Residential households (vs. group quarters)
+* Vacant housing units
+* Lower response rates to non-federal surveys
+
+---
+
+## R Markdown
+
+This is an R Markdown `library(xaringan)` presentation. 
+Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. 
+For more details on using R Markdown see &lt;http://rmarkdown.rstudio.com&gt;.
+
+R version: R version 4.0.2 (2020-06-22).
+
+Package versions:
+
+
+
+- library(tidyverse):  version 1.3.0
+- library(here):  version 0.1
+- library(knitr):  version 1.30
+- library(xaringanthemer):  version 0.3.0
+- library(kableExtra):  version 1.2.1
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "solarized-dark",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
