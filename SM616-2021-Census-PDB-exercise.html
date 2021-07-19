@@ -68,6 +68,22 @@ if (file.exists(here('PDB','pdb2021trv3_ct.csv'))) {
 }
 ```
 
+*Note to students*: the above code uses `library(here)` to create 
+internalized relative links to files within an R/RStudio project.
+The reference `here('PDB','pdb2021trv3_ct.csv')` will point to the file
+in the directory `PDB`, i.e., will create a full reference 
+
+&gt; `[project root folder]/PDB/pdb2021trv3_ct.csv`
+
+On my computer, this reference is C:/Users/kolenikovs/Projects.2021/UMich.SRS/PDB/pdb2021trv3_ct.csv. 
+On your computer, you would need to save the `.Rmd` file with this presentation 
+and either
+
+- start an RStudio project in that folder, or
+- create an empty `.here` file in that same directory so that `library(here)` will pick that
+  up as the starting location.
+
+
 ---
 
 ## US Census Tracts
@@ -517,6 +533,9 @@ Package versions:
 - library(knitr):  version 1.30
 - library(xaringanthemer):  version 0.3.0
 - library(kableExtra):  version 1.2.1
+
+
+The color scheme used is the corporate scheme of Abt Associates.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
