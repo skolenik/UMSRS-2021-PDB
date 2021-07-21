@@ -1819,17 +1819,13 @@ maybe_kable &lt;- function(x, bg=&#39;white&#39;) {
 <h2>PDB CT data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhZF9jc3YoaGVyZSgncGRiJywncGRiMjAyMHRydjJfY3QuY3N2JykpICU+JSBtdXRhdGUoIFxuICAgIHBjdF9OSF9ibGFja19hbG9uZSA9IE5IX0Jsa19hbG9uZV9BQ1NfMTVfMTkgLyBUb3RfUG9wdWxhdGlvbl9BQ1NfMTVfMTksXG4gICAgcGN0X2hpc3AgICAgICAgICAgID0gSGlzcGFuaWNfQUNTXzE1XzE5IC8gVG90X1BvcHVsYXRpb25fQUNTXzE1XzE5LFxuICAgIHBjdF9taW5vcml0eSAgICAgICA9IHBjdF9OSF9ibGFja19hbG9uZSArIHBjdF9oaXNwXG4gICkgLT4gUERCX0NUXG5cbmBgYCJ9 -->
-<pre class="r"><code>read_csv(here(&#39;pdb&#39;,&#39;pdb2020trv2_ct.csv&#39;)) %&gt;% mutate( 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhZF9jc3YoaGVyZSgncGRiJywncGRiMjAyMXRydjNfY3QuY3N2JykpICU+JSBtdXRhdGUoIFxuICAgIHBjdF9OSF9ibGFja19hbG9uZSA9IE5IX0Jsa19hbG9uZV9BQ1NfMTVfMTkgLyBUb3RfUG9wdWxhdGlvbl9BQ1NfMTVfMTksXG4gICAgcGN0X2hpc3AgICAgICAgICAgID0gSGlzcGFuaWNfQUNTXzE1XzE5IC8gVG90X1BvcHVsYXRpb25fQUNTXzE1XzE5LFxuICAgIHBjdF9taW5vcml0eSAgICAgICA9IHBjdF9OSF9ibGFja19hbG9uZSArIHBjdF9oaXNwXG4gICkgLT4gUERCX0NUXG5gYGAifQ== -->
+<pre class="r"><code>read_csv(here(&#39;pdb&#39;,&#39;pdb2021trv3_ct.csv&#39;)) %&gt;% mutate( 
     pct_NH_black_alone = NH_Blk_alone_ACS_15_19 / Tot_Population_ACS_15_19,
     pct_hisp           = Hispanic_ACS_15_19 / Tot_Population_ACS_15_19,
     pct_minority       = pct_NH_black_alone + pct_hisp
-  ) -&gt; PDB_CT
-</code></pre>
+  ) -&gt; PDB_CT</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6ICdDOi9Vc2Vycy9rb2xlbmlrb3ZzL1Byb2plY3RzLjIwMjEvVU1pY2guU1JTL3BkYi9wZGIyMDIwdHJ2Ml9jdC5jc3YnIGRvZXMgbm90IGV4aXN0LlxuIn0= -->
-<pre><code>Error: &#39;C:/Users/kolenikovs/Projects.2021/UMich.SRS/pdb/pdb2020trv2_ct.csv&#39; does not exist.</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -2079,6 +2075,133 @@ design4 &lt;- function(
 <p>Try some values:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9MC40LCBhYm92ZV9oaXNwPTAuNCwgYWJvdmVfbWlub3I9MC4zLCBtaW5zaXplID0gMzAsXG4gIGxvcDE9LTAuNSwgbG9wMj0tMC41LCBsb3AzPS0wLjUsXG4gIHZlcmJvc2UgPSBUUlVFKSAlPiUgbWF5YmVfa2FibGUoKVxuYGBgIn0= -->
+<pre class="r"><code>design4(
+  above_black=0.4, above_hisp=0.4, above_minor=0.3, minsize = 30,
+  lop1=-0.5, lop2=-0.5, lop3=-0.5,
+  verbose = TRUE) %&gt;% maybe_kable()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFLd0p4T2xBM01IQXdLUUMwKy9JN0xnRHBNaFIvQzNZSkVmRjFmL0F0TlBLSFZEOVlIVU8zeVFlZ00zOWRDRUJUUDlpdlFDbVA3Y1dvS2g3eEF0VzU4aTU0d1dZWmpvSmRwRWpxL0FNWkhYMnoyYXN0YXFMQ0xOL1ptcTJaNFhvTWZ2bjc3bVlqemkxMmIvYTVOSVNsV2NGTnkvcjhWejIwR0JaRExwTWEwb3BBM01RWEYzU24yUHI1cXFxT1NTdE5IcS96Mm1wUTRwTXFVdDhEcTlEVVozSWU1YkpUK0RxUWs4ZUR1NkkrK0pnRy83NlY5eWRXZ2ZidVhIdm1IZ1ZIWlREVHh2WkozUEQxVG1ldGJuRXVXNmlRd2kvSEV1dXE0NkRhOEwxQlJrdlhCeE1IZ1hZeFp2c1Jvc1kxcnpFM05SaUlFTUFIRGtRUWZiaWtxTEVra1FUS0pjTnlFc3VLWWJ5bUF2eUMyQ2FrM0lTazdPaEhKYU16R0tZQkZOUUVKVEZrV2NZbjVhWm1wT0N4Qy9KTDBuTVFlSWptOElPNUlNTlFuVW1aMUYrdVI3TXFhQjB3ZFFBSlA3Ly8vOEgzVC9KT1luRk1QL0FCTGxTZ0w3UlN5c0M2Z2Z5L3FGcFljOHZLTW5NendOcVlnS2xVRlkwell4RmFBSWNKVVdWOGNYNVlMTzR3T0tJNU1vSVRiSXdOaGZFTHFiL1VETllZVUdhbXBlZW1aY0tjM1JPWWxJcUxFVDRnRjRGKzFTdm9DZ3pyd1RtQmFCb3NSNXl5SEVsNStmQVJNQ2VZdmdIQUFQL0pPZVNBd0FBIn0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n1_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n1_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n1_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n1_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"41","3":"157751","4":"90510","5":"36975","6":"0.7061373","7":"215.1129","8":"151.8993","9":"87.152547","10":"35.60342"},{"1":"2","2":"103","3":"392060","4":"77062","5":"210717","6":"0.6939958","7":"215.1129","8":"149.2875","9":"29.343444","10":"80.23621"},{"1":"3","2":"136","3":"579071","4":"106589","5":"153889","6":"0.7479296","7":"215.1129","8":"160.8893","9":"29.614730","10":"42.75658"},{"1":"4","2":"548","3":"2446192","4":"79959","5":"172659","6":"0.8342612","7":"354.6612","8":"295.8801","9":"9.671472","10":"20.88404"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDc1Ny45NTYxXG5bMV0gMjUwMFxuIn0= -->
+<pre><code>[1] 757.9561
+[1] 2500</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFLd0p4T2xBM01IQXdLUUMwKy9JN0xnRHBNaFIvQzNZSkVmRjFmL0F0TlBLSFZEOVlIVU8zeVFlZ00zOWRDRUJUUDlpdlFDbVA3Y1dvS2g3eEF0VzU4aTU0d1dZWmpvSmRwRWpxL0FNWkhYMnoyYXN0YXFMQ0xOL1ptcTJaNFhvTWZ2bjc3bVlqemkxMmIvYTVOSVNsV2NGTjY5TlI3RWowVWtTZzU3a3JudStnbzBacnE0K3dESEQ3OGNuaDdwak9TcS9GSjQ0TkV5TldISmZRc0Nocno1Z1NrMDBRbDNoOTRpd2w5T1hPa1FZV2E3TytMWEpJU0s3OXVPRTBHd0grMmZSMzJTdFRzRFZ4VWF2Rm5sL05jK2hvQ3VpU3ZyemRvZkVCVmRNM1k4ZGNRaTBxTnRWZGx3QUxXSlk4eEp6VTR1QkRBRnc1RUFFMll0TGloSkxFazJnWERZZ0w3bWtHTXBqTHNndmdHbE95a2xNem9aeVdESXlpMkVTVEVGQlVCWkhubEY4V21acVRnb1N2eVMvSkRFSGlZOXNDanVRRHpZSTFabWNSZm5sZWpDbmd0SUZVd09RK1AvLy94OTAveVRuSkJiRC9BTVQ1RW9CK2tZdnJRaW9IOGo3aDZhRlBiK2dKRE0vRDZpSkNaUkNXZEUwTXhhaENYQ1VGRlhHRitlRHplSUNpeU9TS3lNMHljTFlYQkM3bVA1RHpXQ0ZCV2xxWG5wbVhpck0wVG1KU2Ftd0VPRURlaFhzVTcyQ29zeThFcGdYZ0tMRmVzZ2h4NVdjbndNVEFYdUs0UjhBZUt5VGlKSURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"41","3":"157751","4":"90510","5":"36975","6":"0.7061373","7":"709.5164","8":"501.0160","9":"287.45907","10":"117.43232"},{"1":"2","2":"103","3":"392060","4":"77062","5":"210717","6":"0.6939958","7":"709.5164","8":"492.4014","9":"96.78477","10":"264.64660"},{"1":"3","2":"136","3":"579071","4":"106589","5":"153889","6":"0.7479296","7":"709.5164","8":"530.6683","9":"97.67956","10":"141.02590"},{"1":"4","2":"548","3":"2446192","4":"79959","5":"172659","6":"0.8342612","7":"1169.7947","8":"975.9143","9":"31.89984","10":"68.88273"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJGFib3ZlX2JsYWNrXG5bMV0gMC40XG5cbiRhYm92ZV9oaXNwXG5bMV0gMC40XG5cbiRhYm92ZV9taW5vclxuWzFdIDAuM1xuXG4kbl90b3RhbFxuWzFdIDI1MDBcblxuJG5fYmxhY2tcblsxXSA1MTMuODIzMlxuXG4kbl9oaXNwXG5bMV0gNTkxLjk4NzZcblxuJGRlZmZcbiAgICAgICAgIFxuMS4zOTM3MDUgXG5cbiRwMVxuWzFdIDAuMjE1MTEyOVxuXG4kcDJcblsxXSAwLjIxNTExMjlcblxuJHAzXG5bMV0gMC4yMTUxMTI5XG5cbiRwNFxuWzFdIDAuMzU0NjYxMlxuXG4kZm9ialxuICAgICAgICAgXG4xLjM5MzcwNSBcblxuJHNhbXBsZV9kZXNpZ25cbiJ9 -->
+<pre><code>$above_black
+[1] 0.4
+
+$above_hisp
+[1] 0.4
+
+$above_minor
+[1] 0.3
+
+$n_total
+[1] 2500
+
+$n_black
+[1] 513.8232
+
+$n_hisp
+[1] 591.9876
+
+$deff
+         
+1.393705 
+
+$p1
+[1] 0.2151129
+
+$p2
+[1] 0.2151129
+
+$p3
+[1] 0.2151129
+
+$p4
+[1] 0.3546612
+
+$fobj
+         
+1.393705 
+
+$sample_design</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFLd0p4T2xBM01IQXdLUUMwKy9JN0xnRHBNaFIvQzNZSkVmRjFmL0F0TlBLSFZEOVlIVU8zeVFlZ00zOWRDRUJUUDlpdlFDbVA3Y1dvS2g3eEF0VzU4aTU0d1dZWmpvSmRwRWpxL0FNWkhYMnoyYXN0YXFMQ0xOL1ptcTJaNFhvTWZ2bjc3bVlqemkxMmIvYTVOSVNsV2NGTjY5TlI3RWowVWtTZzU3a3JudStnbzBacnE0K3dESEQ3OGNuaDdwak9TcS9GSjQ0TkV5TldISmZRc0Nocno1Z1NrMDBRbDNoOTRpd2w5T1hPa1FZV2E3TytMWEpJU0s3OXVPRTBHd0grMmZSMzJTdFRzRFZ4VWF2Rm5sL05jK2hvQ3VpU3ZyemRvZkVCVmRNM1k4ZGNRaTBxTnRWZGx3QUxXSlk4eEp6VTR1QkRBRnc1RUFFMll0TGloSkxFazJnWERZZ0w3bWtHTXBqTHNndmdHbE95a2xNem9aeVdESXlpMkVTVEVGQlVCWkhubEY4V21acVRnb1N2eVMvSkRFSGlZOXNDanVRRHpZSTFabWNSZm5sZWpDbmd0SUZVd09RK1AvLy94OTAveVRuSkJiRC9BTVQ1RW9CK2tZdnJRaW9IOGo3aDZhRlBiK2dKRE0vRDZpSkNaUkNXZEUwTXhhaENYQ1VGRlhHRitlRHplSUNpeU9TS3lNMHljTFlYQkM3bVA1RHpXQ0ZCV2xxWG5wbVhpck0wVG1KU2Ftd0VPRURlaFhzVTcyQ29zeThFcGdYZ0tMRmVzZ2h4NVdjbndNVEFYdUs0UjhBZUt5VGlKSURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"41","3":"157751","4":"90510","5":"36975","6":"0.7061373","7":"709.5164","8":"501.0160","9":"287.45907","10":"117.43232"},{"1":"2","2":"103","3":"392060","4":"77062","5":"210717","6":"0.6939958","7":"709.5164","8":"492.4014","9":"96.78477","10":"264.64660"},{"1":"3","2":"136","3":"579071","4":"106589","5":"153889","6":"0.7479296","7":"709.5164","8":"530.6683","9":"97.67956","10":"141.02590"},{"1":"4","2":"548","3":"2446192","4":"79959","5":"172659","6":"0.8342612","7":"1169.7947","8":"975.9143","9":"31.89984","10":"68.88273"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4kYWJvdmVfYmxhY2tcblsxXSAwLjRcblxuJGFib3ZlX2hpc3BcblsxXSAwLjRcblxuJGFib3ZlX21pbm9yXG5bMV0gMC4zXG5cbiRuX3RvdGFsXG5bMV0gMjUwMFxuXG4kbl9ibGFja1xuWzFdIDUxMy44MjMyXG5cbiRuX2hpc3BcblsxXSA1OTEuOTg3NlxuXG4kZGVmZlxuICAgICAgICAgXG4xLjM5MzcwNSBcblxuJHAxXG5bMV0gMC4yMTUxMTI5XG5cbiRwMlxuWzFdIDAuMjE1MTEyOVxuXG4kcDNcblsxXSAwLjIxNTExMjlcblxuJHA0XG5bMV0gMC4zNTQ2NjEyXG5cbiRmb2JqXG4gICAgICAgICBcbjEuMzkzNzA1IFxuXG4kc2FtcGxlX2Rlc2lnblxuIn0= -->
+<pre><code>
+$above_black
+[1] 0.4
+
+$above_hisp
+[1] 0.4
+
+$above_minor
+[1] 0.3
+
+$n_total
+[1] 2500
+
+$n_black
+[1] 513.8232
+
+$n_hisp
+[1] 591.9876
+
+$deff
+         
+1.393705 
+
+$p1
+[1] 0.2151129
+
+$p2
+[1] 0.2151129
+
+$p3
+[1] 0.2151129
+
+$p4
+[1] 0.3546612
+
+$fobj
+         
+1.393705 
+
+$sample_design</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFLd0p4T2xBM01IQXdLUUMwKy9JN0xnRHBNaFIvQzNZSkVmRjFmL0F0TlBLSFZEOVlIVU8zeVFlZ00zOWRDRUJUUDlpdlFDbVA3Y1dvS2g3eEF0VzU4aTU0d1dZWmpvSmRwRWpxL0FNWkhYMnoyYXN0YXFMQ0xOL1ptcTJaNFhvTWZ2bjc3bVlqemkxMmIvYTVOSVNsV2NGTjY5TlI3RWowVWtTZzU3a3JudStnbzBacnE0K3dESEQ3OGNuaDdwak9TcS9GSjQ0TkV5TldISmZRc0Nocno1Z1NrMDBRbDNoOTRpd2w5T1hPa1FZV2E3TytMWEpJU0s3OXVPRTBHd0grMmZSMzJTdFRzRFZ4VWF2Rm5sL05jK2hvQ3VpU3ZyemRvZkVCVmRNM1k4ZGNRaTBxTnRWZGx3QUxXSlk4eEp6VTR1QkRBRnc1RUFFMll0TGloSkxFazJnWERZZ0w3bWtHTXBqTHNndmdHbE95a2xNem9aeVdESXlpMkVTVEVGQlVCWkhubEY4V21acVRnb1N2eVMvSkRFSGlZOXNDanVRRHpZSTFabWNSZm5sZWpDbmd0SUZVd09RK1AvLy94OTAveVRuSkJiRC9BTVQ1RW9CK2tZdnJRaW9IOGo3aDZhRlBiK2dKRE0vRDZpSkNaUkNXZEUwTXhhaENYQ1VGRlhHRitlRHplSUNpeU9TS3lNMHljTFlYQkM3bVA1RHpXQ0ZCV2xxWG5wbVhpck0wVG1KU2Ftd0VPRURlaFhzVTcyQ29zeThFcGdYZ0tMRmVzZ2h4NVdjbndNVEFYdUs0UjhBZUt5VGlKSURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"41","3":"157751","4":"90510","5":"36975","6":"0.7061373","7":"709.5164","8":"501.0160","9":"287.45907","10":"117.43232"},{"1":"2","2":"103","3":"392060","4":"77062","5":"210717","6":"0.6939958","7":"709.5164","8":"492.4014","9":"96.78477","10":"264.64660"},{"1":"3","2":"136","3":"579071","4":"106589","5":"153889","6":"0.7479296","7":"709.5164","8":"530.6683","9":"97.67956","10":"141.02590"},{"1":"4","2":"548","3":"2446192","4":"79959","5":"172659","6":"0.8342612","7":"1169.7947","8":"975.9143","9":"31.89984","10":"68.88273"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9MC40LCBhYm92ZV9oaXNwPTAuNSwgYWJvdmVfbWlub3I9MC41LCBtaW5zaXplID0gMzAsXG4gIGxvcDE9LTAuODUsIGxvcDI9LTAuODUsIGxvcDM9LTAuODUsXG4gIHZlcmJvc2UgPSBUUlVFKSAlPiUgbWF5YmVfa2FibGUoKVxuYGBgIn0= -->
+<pre class="r"><code>design4(
+  above_black=0.4, above_hisp=0.5, above_minor=0.5, minsize = 30,
+  lop1=-0.85, lop2=-0.85, lop3=-0.85,
+  verbose = TRUE) %&gt;% maybe_kable()</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFLd0p4RzVBN003QXdOUUcwKy9JN0xnRHBNaVJiOE1KTUMwRU1jclI5WGtpVkQ5WW5jTTNpUWRnYzU5L0E4czdmR0kxQUt0ajFGMkJvdTRSTDFpZEk1TmtBRmpkcnlrUXZxREVFMlIxOXM5bXJMV3Fpd2l6ZjNwbGl2enNkUzMyejZXNUdWbnpWZXhmQmY0VThlcVFoNXVYbnZIOHRnZHZJd1pkbmJURVhQajFQcmk2aFBZTGVjeGFYeHppUDJ6bmFEODR4eUhodWI0Wjk2RkxEbVZ0UHE1aFY0L0IxUVg5WU51MXVxSGN3ZUlEVjhPeWRDWUhoOWVYNUFSVkRCME1WM2xGYjkvOUU2N083ci9VeHFtMW1nNUJWMy8vZk1kYTR1RHg5YXIvV2Vsa0I4Y3A3emZWYmxkQWl4ald2TVRjMUdJZ1F3QWNPUkJCOXVLU29zU1NSQk1vbHczSVN5NHBodktZQy9JTFlKcVRjaEtUczZFY2xvek1ZcGdFVTFBUWxNV1JaeGlmbHBtYWs0TEVMOGt2U2N4QjRpT2J3ZzdrZ3cxQ2RTWm5VWDY1SHN5cG9IVEIxQUFrL3YvLy93ZmRQOGs1aWNVdy84QUV1VktBdnRGTEt3THFCL0wrb1dsaHp5OG95Y3pQQTJwaUFxVlFWalROakVWb0Fod2xSWlh4eGZsZ3M3akE0b2preWdoTnNqQTJGOFF1cHY5UU0xaGhRWnFhbDU2Wmx3cHpkRTVpVWlvc1JQaUFYZ1g3VksrZ0tET3ZCT1lGb0dpeEhuTEljU1huNThCRXdKNWkrQWNBOFJweGc1SURBQUE9In0= -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
@@ -2086,13 +2209,6 @@ design4 &lt;- function(
   </script>
 </div>
 <!-- rnb-frame-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9MC40LCBhYm92ZV9oaXNwPTAuNSwgYWJvdmVfbWlub3I9MC41LCBtaW5zaXplID0gMzAsXG4gIGxvcDE9LTAuODUsIGxvcDI9LTAuODUsIGxvcDM9LTAuODUsXG4gIHZlcmJvc2UgPSBUUlVFKSAlPiUgbWF5YmVfa2FibGUoKVxuXG5gYGAifQ== -->
-<pre class="r"><code>design4(
-  above_black=0.4, above_hisp=0.5, above_minor=0.5, minsize = 30,
-  lop1=-0.85, lop2=-0.85, lop3=-0.85,
-  verbose = TRUE) %&gt;% maybe_kable()
-</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiWzFdIDc1NS42MjM1XG5bMV0gMjUwMFxuIn0= -->
 <pre><code>[1] 755.6235
 [1] 2500</code></pre>
@@ -2212,19 +2328,21 @@ $sample_design</code></pre>
 <p>The above function needs to be made compatible with <code>stats::optim()</code> and <code>library(optimx)</code>, which expect a function that accepts a vector of parameters, and returns a scalar value of the function to be optimized.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIycgd3JhcHBlciBhcm91bmQgZGVzaWduNCgpIHRoYXQgdGFrZXMgaW5wdXRzIGFzIGEgdmVjdG9yXG4jJyBAcGFyYW0gcGFyICAgdmVjdG9yIGlucHV0IG9mIGMoYWJvdmVfYmxhY2ssIGFib3ZlX2hpc3AsIGFib3ZlX21pbm9yLCBsb3AxLCBsb3AyLCBsb3AzKVxuIycgQHJldHVybiAgICAgIHRoZSBwZW5hbGl6ZWQgZGVmZiAvIGRlc2lnbjQoKSRmb2JqXG4jJyBAZXhwb3J0XG5kZXNpZ240X29wdCA8LSBmdW5jdGlvbihwYXIpIHtcbiAgXG4gIGRlc2lnbjRfcmV0dXJuIDwtIGRlc2lnbjQoXG4gICAgYWJvdmVfYmxhY2sgPSBwYXJbMV0sIGFib3ZlX2hpc3A9cGFyWzJdLCBhYm92ZV9taW5vcj1wYXJbM10sXG4gICAgbG9wMT1wYXJbNF0sIGxvcDI9cGFyWzVdLCBsb3AzPXBhcls2XVxuICApXG4gIFxuICByZXR1cm4oZGVzaWduNF9yZXR1cm4kZm9iailcbn1cbmRlc2lnbjRfb3B0KGMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIycgd3JhcHBlciBhcm91bmQgZGVzaWduNCgpIHRoYXQgdGFrZXMgaW5wdXRzIGFzIGEgdmVjdG9yXG4jJyBAcGFyYW0gcGFyICAgdmVjdG9yIGlucHV0IG9mIGMoYWJvdmVfYmxhY2ssIGFib3ZlX2hpc3AsIGFib3ZlX21pbm9yLCBsb3AxLCBsb3AyLCBsb3AzKVxuIycgQHJldHVybiAgICAgIHRoZSBwZW5hbGl6ZWQgZGVmZiAvIGRlc2lnbjQoKSRmb2JqXG4jJyBAZXhwb3J0XG5kZXNpZ240X29wdCA8LSBmdW5jdGlvbihwYXIpIHtcbiAgXG4gIGRlc2lnbjRfcmV0dXJuIDwtIHRyeUNhdGNoKCBkZXNpZ240KFxuICAgIGFib3ZlX2JsYWNrID0gcGFyWzFdLCBhYm92ZV9oaXNwPXBhclsyXSwgYWJvdmVfbWlub3I9cGFyWzNdLFxuICAgIGxvcDE9cGFyWzRdLCBsb3AyPXBhcls1XSwgbG9wMz1wYXJbNl1cbiAgKSRmb2JqICxcbiAgICBlcnJvciA9IGZ1bmN0aW9uKGUpIDEwMDBcbiAgKVxuICBcbiAgcmV0dXJuKGRlc2lnbjRfcmV0dXJuKVxufVxuZGVzaWduNF9vcHQoYygwLjQsMC40LDAuMywtMC41LC0wLjUsLTAuNSkpXG5gYGAifQ== -->
 <pre class="r"><code>#&#39; wrapper around design4() that takes inputs as a vector
 #&#39; @param par   vector input of c(above_black, above_hisp, above_minor, lop1, lop2, lop3)
 #&#39; @return      the penalized deff / design4()$fobj
 #&#39; @export
 design4_opt &lt;- function(par) {
   
-  design4_return &lt;- design4(
+  design4_return &lt;- tryCatch( design4(
     above_black = par[1], above_hisp=par[2], above_minor=par[3],
     lop1=par[4], lop2=par[5], lop3=par[6]
+  )$fobj ,
+    error = function(e) 1000
   )
   
-  return(design4_return$fobj)
+  return(design4_return)
 }
 design4_opt(c(0.4,0.4,0.3,-0.5,-0.5,-0.5))</code></pre>
 <!-- rnb-source-end -->
@@ -2246,9 +2364,9 @@ design4_opt(c(0.4,0.4,0.3,-0.5,-0.5,-0.5))</code></pre>
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHN0X25sbS50aW1lIDwtIHN5c3RlbS50aW1lKHN0X25sbSA8LSBzdGF0czo6bmxtKGY9ZGVzaWduNF9vcHQscD1jKDAuNCwwLjQsMC4zLC0wLjUsLTAuNSwtMC41KSkpKVxuYGBgIn0= -->
 <pre class="r"><code>(st_nlm.time &lt;- system.time(st_nlm &lt;- stats::nlm(f=design4_opt,p=c(0.4,0.4,0.3,-0.5,-0.5,-0.5))))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gIDM5LjAwICAgIDAuMzQgICA0MC4zNiBcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gIDYyLjY5ICAgIDAuMjMgICA2OC4yMiBcbiJ9 -->
 <pre><code>   user  system elapsed 
-  39.00    0.34   40.36 </code></pre>
+  62.69    0.23   68.22 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RfbmxtXG5gYGAifQ== -->
 <pre class="r"><code>st_nlm</code></pre>
@@ -2275,11 +2393,18 @@ $iterations
 <blockquote>
 <p>code == 3: last global step failed to locate a point lower than estimate. Either estimate is an approximate local minimum of the function or steptol is too small. code == 4: iteration limit exceeded.</p>
 </blockquote>
-<p>Optimization took 40.36 seconds and converged succesfully. The implied design is:</p>
+<p>Optimization took 68.22 seconds and converged succesfully. The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmxtb19kZXNpZ24kc2FtcGxlX2Rlc2lnbiAlPiUgXG4gIHNlbGVjdCgtcG9wLCAtYmxhY2ssIC1oaXNwLCAtUlIpICU+JSBcbiAgbXV0YXRlKFxuICAgIGRlZmluaXRpb24gPSBjYXNlX3doZW4oXG4gICAgICBzdHJhdGE0ID09IDEgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZChubG1vX2Rlc2lnbiRhYm92ZV9ibGFjayoxMDAsMiksIFwiJSBOSCBCbGFja1wiKSxcbiAgICAgIHN0cmF0YTQgPT0gMiB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKG5sbW9fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKG5sbW9fZGVzaWduJGFib3ZlX21pbm9yKjEwMCwyKSwgXCIlIG1pbm9yaXR5XCIpLFxuICAgICAgc3RyYXRhNCA9PSA0IH4gXCJNb3N0bHkgTkggV2hpdGVcIilcbiAgKSAlPiUgc2VsZWN0KHN0cmF0YTQsZGVmaW5pdGlvbiwgdHJhY3RzLCBzdGFydHNfd2l0aChcIm4yXCIpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtdXRhdGUoYWNyb3NzKHdoZXJlKGlzLm51bWVyaWMpLHJvdW5kKSkgJT4lXG4gIG1heWJlX2thYmxlKClcblxuYGBgIn0= -->
-<pre class="r"><code>nlmo_design$sample_design %&gt;% 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmxtb19kZXNpZ24gPC0gZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9c3RfbmxtJGVzdGltYXRlWzFdLCBcbiAgYWJvdmVfaGlzcCA9c3RfbmxtJGVzdGltYXRlWzJdLCBcbiAgYWJvdmVfbWlub3I9c3RfbmxtJGVzdGltYXRlWzNdLCBcbiAgbG9wMT1zdF9ubG0kZXN0aW1hdGVbNF0sIFxuICBsb3AyPXN0X25sbSRlc3RpbWF0ZVs1XSwgXG4gIGxvcDM9c3RfbmxtJGVzdGltYXRlWzZdKVxubmxtb19kZXNpZ24kc2FtcGxlX2Rlc2lnbiAlPiUgXG4gIHNlbGVjdCgtcG9wLCAtYmxhY2ssIC1oaXNwLCAtUlIpICU+JSBcbiAgbXV0YXRlKFxuICAgIGRlZmluaXRpb24gPSBjYXNlX3doZW4oXG4gICAgICBzdHJhdGE0ID09IDEgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZChubG1vX2Rlc2lnbiRhYm92ZV9ibGFjayoxMDAsMiksIFwiJSBOSCBCbGFja1wiKSxcbiAgICAgIHN0cmF0YTQgPT0gMiB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKG5sbW9fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKG5sbW9fZGVzaWduJGFib3ZlX21pbm9yKjEwMCwyKSwgXCIlIG1pbm9yaXR5XCIpLFxuICAgICAgc3RyYXRhNCA9PSA0IH4gXCJNb3N0bHkgTkggV2hpdGVcIilcbiAgKSAlPiUgc2VsZWN0KHN0cmF0YTQsZGVmaW5pdGlvbiwgdHJhY3RzLCBzdGFydHNfd2l0aChcIm4yXCIpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtdXRhdGUoYWNyb3NzKHdoZXJlKGlzLm51bWVyaWMpLHJvdW5kKSkgJT4lXG4gIG1heWJlX2thYmxlKClcbmBgYCJ9 -->
+<pre class="r"><code>nlmo_design &lt;- design4(
+  above_black=st_nlm$estimate[1], 
+  above_hisp =st_nlm$estimate[2], 
+  above_minor=st_nlm$estimate[3], 
+  lop1=st_nlm$estimate[4], 
+  lop2=st_nlm$estimate[5], 
+  lop3=st_nlm$estimate[6])
+nlmo_design$sample_design %&gt;% 
   select(-pop, -black, -hisp, -RR) %&gt;% 
   mutate(
     definition = case_when(
@@ -2290,8 +2415,7 @@ $iterations
   ) %&gt;% select(strata4,definition, tracts, starts_with(&quot;n2&quot;)) %&gt;%
   janitor::adorn_totals(&quot;row&quot;) %&gt;%
   mutate(across(where(is.numeric),round)) %&gt;%
-  maybe_kable()
-</code></pre>
+  maybe_kable()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiIHN0cmF0YTQgICAgICBkZWZpbml0aW9uIHRyYWN0cyBuMl9maWVsZCBuMl90b3RhbCBuMl9ibGFjayBuMl9oaXNwXG4gICAgICAgMSAgPiA0MCUgTkggQmxhY2sgICAgIDQxICAgICAgODAyICAgICAgNTY2ICAgICAgMzI1ICAgICAxMzNcbiAgICAgICAyICAgICAgPiA0MCUgSGlzcCAgICAxMDMgICAgICA0ODcgICAgICAzMzggICAgICAgNjYgICAgIDE4MlxuICAgICAgIDMgID4gMzAlIG1pbm9yaXR5ICAgIDEzNiAgICAgIDQ5OSAgICAgIDM3MyAgICAgICA2OSAgICAgIDk5XG4gICAgICAgNCBNb3N0bHkgTkggV2hpdGUgICAgNTQ4ICAgICAxNDY1ICAgICAxMjIyICAgICAgIDQwICAgICAgODZcbiAgIFRvdGFsICAgICAgICAgICAgICAgLSAgICA4MjggICAgIDMyNTMgICAgIDI1MDAgICAgICA1MDAgICAgIDUwMFxuIn0= -->
 <pre><code> strata4      definition tracts n2_field n2_total n2_black n2_hisp
@@ -2314,9 +2438,9 @@ $iterations
   st_nm &lt;- stats::optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method=&quot;Nelder-Mead&quot;,
   control=list(maxit=5000,trace=0))) )</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gIDQ5LjU4ICAgIDAuMTEgICA0OS45MSBcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gMTA1LjI1ICAgIDAuNTIgIDExNC40NCBcbiJ9 -->
 <pre><code>   user  system elapsed 
-  49.58    0.11   49.91 </code></pre>
+ 105.25    0.52  114.44 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfbm1cbmBgYCJ9 -->
 <pre class="r"><code>st_nm</code></pre>
@@ -2344,11 +2468,18 @@ NULL</code></pre>
 <blockquote>
 <p>convergence == 0 indicates successful completion.</p>
 </blockquote>
-<p>Optimization took 49.91 seconds and converged succesfully. The implied design is:</p>
+<p>Optimization took 114.44 seconds and converged succesfully. The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfbm1fZGVzaWduJHNhbXBsZV9kZXNpZ24gJT4lIFxuICBzZWxlY3QoLXBvcCwgLWJsYWNrLCAtaGlzcCwgLVJSKSAlPiUgXG4gIG11dGF0ZShcbiAgICBkZWZpbml0aW9uID0gY2FzZV93aGVuKFxuICAgICAgc3RyYXRhNCA9PSAxIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc3Rfbm1fZGVzaWduJGFib3ZlX2JsYWNrKjEwMCwyKSwgXCIlIE5IIEJsYWNrXCIpLFxuICAgICAgc3RyYXRhNCA9PSAyIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc3Rfbm1fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHN0X25tX2Rlc2lnbiRhYm92ZV9taW5vcioxMDAsMiksIFwiJSBtaW5vcml0eVwiKSxcbiAgICAgIHN0cmF0YTQgPT0gNCB+IFwiTW9zdGx5IE5IIFdoaXRlXCIpXG4gICkgJT4lIHNlbGVjdChzdHJhdGE0LGRlZmluaXRpb24sIHRyYWN0cywgc3RhcnRzX3dpdGgoXCJuMlwiKSkgJT4lXG4gIG11dGF0ZShhY3Jvc3Mod2hlcmUoaXMubnVtZXJpYykscm91bmQpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtYXliZV9rYWJsZSgpXG5cbmBgYCJ9 -->
-<pre class="r"><code>st_nm_design$sample_design %&gt;% 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3Rfbm1fZGVzaWduIDwtIGRlc2lnbjQoXG4gIGFib3ZlX2JsYWNrPXN0X25tJHBhclsxXSwgXG4gIGFib3ZlX2hpc3AgPXN0X25tJHBhclsyXSwgXG4gIGFib3ZlX21pbm9yPXN0X25tJHBhclszXSwgXG4gIGxvcDE9c3Rfbm0kcGFyWzRdLCBcbiAgbG9wMj1zdF9ubSRwYXJbNV0sIFxuICBsb3AzPXN0X25tJHBhcls2XSlcbnN0X25tX2Rlc2lnbiRzYW1wbGVfZGVzaWduICU+JSBcbiAgc2VsZWN0KC1wb3AsIC1ibGFjaywgLWhpc3AsIC1SUikgJT4lIFxuICBtdXRhdGUoXG4gICAgZGVmaW5pdGlvbiA9IGNhc2Vfd2hlbihcbiAgICAgIHN0cmF0YTQgPT0gMSB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHN0X25tX2Rlc2lnbiRhYm92ZV9ibGFjayoxMDAsMiksIFwiJSBOSCBCbGFja1wiKSxcbiAgICAgIHN0cmF0YTQgPT0gMiB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHN0X25tX2Rlc2lnbiRhYm92ZV9oaXNwKjEwMCwyKSwgXCIlIEhpc3BcIiksXG4gICAgICBzdHJhdGE0ID09IDMgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZChzdF9ubV9kZXNpZ24kYWJvdmVfbWlub3IqMTAwLDIpLCBcIiUgbWlub3JpdHlcIiksXG4gICAgICBzdHJhdGE0ID09IDQgfiBcIk1vc3RseSBOSCBXaGl0ZVwiKVxuICApICU+JSBzZWxlY3Qoc3RyYXRhNCxkZWZpbml0aW9uLCB0cmFjdHMsIHN0YXJ0c193aXRoKFwibjJcIikpICU+JVxuICBtdXRhdGUoYWNyb3NzKHdoZXJlKGlzLm51bWVyaWMpLHJvdW5kKSkgJT4lXG4gIGphbml0b3I6OmFkb3JuX3RvdGFscyhcInJvd1wiKSAlPiVcbiAgbWF5YmVfa2FibGUoKVxuYGBgIn0= -->
+<pre class="r"><code>st_nm_design &lt;- design4(
+  above_black=st_nm$par[1], 
+  above_hisp =st_nm$par[2], 
+  above_minor=st_nm$par[3], 
+  lop1=st_nm$par[4], 
+  lop2=st_nm$par[5], 
+  lop3=st_nm$par[6])
+st_nm_design$sample_design %&gt;% 
   select(-pop, -black, -hisp, -RR) %&gt;% 
   mutate(
     definition = case_when(
@@ -2359,8 +2490,7 @@ NULL</code></pre>
   ) %&gt;% select(strata4,definition, tracts, starts_with(&quot;n2&quot;)) %&gt;%
   mutate(across(where(is.numeric),round)) %&gt;%
   janitor::adorn_totals(&quot;row&quot;) %&gt;%
-  maybe_kable()
-</code></pre>
+  maybe_kable()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiIHN0cmF0YTQgICAgICAgIGRlZmluaXRpb24gdHJhY3RzIG4yX2ZpZWxkIG4yX3RvdGFsIG4yX2JsYWNrIG4yX2hpc3BcbiAgICAgICAxID4gNDcuMTklIE5IIEJsYWNrICAgICAzMCAgICAgIDY5NyAgICAgIDQ5NiAgICAgIDMwNyAgICAgIDk0XG4gICAgICAgMiAgICAgPiAzNi4zOSUgSGlzcCAgICAxMjYgICAgICA2OTQgICAgICA0ODQgICAgICAgOTkgICAgIDI0N1xuICAgICAgIDMgPiAxNi4zNiUgbWlub3JpdHkgICAgMjM3ICAgICAgNzIyICAgICAgNTU4ICAgICAgIDc3ICAgICAxMDlcbiAgICAgICA0ICAgTW9zdGx5IE5IIFdoaXRlICAgIDQzNSAgICAgMTE0MCAgICAgIDk2MiAgICAgICAxOCAgICAgIDUxXG4gICBUb3RhbCAgICAgICAgICAgICAgICAgLSAgICA4MjggICAgIDMyNTMgICAgIDI1MDAgICAgICA1MDEgICAgIDUwMVxuIn0= -->
 <pre><code> strata4        definition tracts n2_field n2_total n2_black n2_hisp
@@ -2386,50 +2516,27 @@ NULL</code></pre>
 <pre><code>sann objective function values
 initial       value 1.393705</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFHd014THZBaGpFdytjSDBPN0p2MndGUzVLZ2U1Z2ZXTjJzRldKT2o4eWRicUg2d09vZWZrdzZBeFJuS09zRHFtbTVBN1BsOW5nRkYzZk05RUhYQ1d4K0E1U3Nna280Y213U1ExZGsvNjN3ZGJxRzcyZjQ1UTdtRXdGYVAvejhna3ZhdittVE5mMXVyd2RUQnhISFJBNmNPSldKWTh4SnpVNHVCREpBbnVhQ0M3TVVsUllrbGlTWlFMaHVRbDF4U0RPVXhGK1FYd0RRbjVTUW1aME01TEJtWnhUQUpwcUFnS0lzanp5ZytMVE0xSndXSlg1SmZrcGlEeEVjMmhSM0lCeHVFNmt6T292eHlQWmhUUWVtQ3FRSGtwLy8vLzZEN0p6a25zUmptSDVnZ1Z3clFOM3BwUlVEOVFONC9OQzNzK1FVbG1mbDVRRTFNb0JUS2lxYVpzUWpkTkpENjNQaml4THc4QmtpQ1pvU0dMQytVellMRTVvTFl4dlFmYWdvckxGQlQ4OUl6ODFKaHpzNUpURXFGaFFrZjBMTmd2K29WRkdYbWxjQ3NCWW9XNnlHSEhWZHlmZzVNQk93dGhuOEFQU3VVbTVRREFBQT0ifQ== -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCc1ZTUDB2RFFCUi92YWIvQXEyRmZvZUNTOURhT2ppWVZydTVsRTVkcEtScGFvTnBFcEtBSFJ4S1VSd0VQNENmd05ISndjbVBJWWlyb3BQaUlsSWEzMTN1SUEwNGUzQzg5M3Z2OTN0Mzc5MTEyNzB0dVNjRFFCb2tJSkRPb0F2Wi9jNW1yVkVEa0FpaUZHWUsxRTZSVlVHSDBrdTRKZlVEMkdvQ3QzbHV5eUJXa2ZKd04zRGZzV0pBT2tMZnlsKzVsTlNxUHUweDNmVU5FN1hhNmJOWnBHZTg1cy9HTFl0RGJzeDQ4OGZvbk1WYUIrSzh0OWtENDFVT1dhSG1ORXEyOHArek9FOTltUjljN0o3WDFWY2lrNi9uYXZnZEpkWDN5OVA3OWUwZHdSUHh2K3ovOFZZZUptTnJFOE5IcHd6MGNhSmd6Zzg4TGREcUhHWVI2WUhQVWRwMVhDRWVXSnAreklFME5uMlJJTjB1OS9KMnJUOHlEV3NZdzRFVGFGWU14NnZrRUxOQ3E5Y3NlTTZKSXE1Sy93V2hqeEtHNFNMWmoyNXB2dWhIQk9VaGRxT01QTlFqV2lZa09jY05UTWRHRWFFL05KTVFwN3hrTmNxZjlIM050aUg2MENrKzJTTDNwWmd2UjZlUmtGZkppS0VhOXBGcEcrTGFsall3eEV4SzJDenJWWEU5MHc3RXNSajFsZmpzWk4yeFJJUzFCY3RmNnQxRlZaUURBQUE9In0= -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"51","3":"194263","4":"104748","5":"48614","6":"0.7043359","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"2","2":"186","3":"764711","4":"134865","5":"322936","6":"0.7188068","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"3","2":"1","3":"1706","4":"603","5":"384","6":"NaN","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"4","2":"590","3":"2614394","4":"113904","5":"202306","6":"0.8298479","7":"NaN","8":"NaN","9":"NaN","10":"NaN"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
+{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"53","3":"201166","4":"107275","5":"52230","6":"0.7034052","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"2","2":"182","3":"748961","4":"131309","5":"317290","6":"0.7189989","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"3","2":"1","3":"1706","4":"603","5":"384","6":"NaN","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"4","2":"592","3":"2623241","4":"114933","5":"204336","6":"0.8295272","7":"NaN","8":"NaN","9":"NaN","10":"NaN"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-frame-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFHd094TnZBaGpFdytjSDBPM0oyVGdBcGNsUjdPQU9zYjlZS3NDWkg1MCsyVVAxZ2RRNi9ub0RWT2Z5ZkRiYktvZWtHeEo3ZjV4bFExTDNxYndEckY0N3VBTXRYUUNRZE9UWUpJS3V6ZjlaZi9QZDBqNWI5YzBZdkU2N25yLy8vZ0VqYXYrcVROZjl0clFaVEJ4UEhSUStjT3BTSVljMUx6RTB0QmpKQW51U0NDcklYbHhRbGxpU2FRTGxzUUY1eVNUR1V4MXlRWHdEVG5KU1RtSndONWJCa1pCYkRKSmlDZ3FBc2pqeWorTFRNMUp3VUpINUpma2xpRGhJZjJSUjJJQjlzRUtvek9Zdnl5L1ZnVGdXbEN5WlFaUDMvLy84UHVuK1NjeEtMWWY2QkNYS2xBSDJqbDFZRTFBL2svVVBUd3A1ZlVKS1pud2ZVeEFSS29heG9taG1MMEUwRHFjK05MMDdNeTJPQUpHaEdhTWp5UXRrc1NHd3VpRzFNLzZHbXNNSUNOVFV2UFRNdkZlYnNuTVNrVkZpWThBRTlDL2FyWGtGUlpsNEp6RnFnYUxFZWN0aHhKZWZud0VUQTNtTDRCd0JsWXRSZmxBTUFBQT09In0= -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"55","3":"209202","4":"110153","5":"54396","6":"0.7050114","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"2","2":"182","3":"749772","4":"129460","5":"317154","6":"0.7189075","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"3","2":"1","3":"1706","4":"603","5":"384","6":"NaN","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"4","2":"590","3":"2614394","4":"113904","5":"202306","6":"0.8298479","7":"NaN","8":"NaN","9":"NaN","10":"NaN"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCc1ZTdjB2RFFCUitUZE5mZ1phQ2Y0R1RXOEdxaXc1cHFKc0kwaWxidmFhcEJ0TkxTQUoyRkRjZFJKeUttNXZPNGlCMDhCOXdGY2RPRlZ4MEVSU2w5ZDNsRHRLQXN3Zkh2ZSs5NzN2djNydHJiWm9ybXFrQlFCWlVVQ0NiUXhQeXpaM2wrbG9kUUZVUVpUQlNZdWNBV1F0b01Ib0Z0NnEvQTE4TkVHZFJuRldRcTh4NHVERVpqSGd5VUxhbDNpaEVZMFl5bHZ4ZHJydTg1aUtqK2ZZazlKelgrQ0s4aEFGRGsvT09uK002MzZQeEhPOWxNYzYzOERqazhVRWNOSW8zWnBLblQ4NVA3cmV1dXZwa2F0MzVINmV6enppb3Y1NWQzRDZzYjBpZTlQOTEvaDl2N21GeWxQVHRFSTBxc01lSm5ZVXdDa2hFVmdYTUk3S2lVS0NzNy9sUzNIR0pkU0NBdXUrRU1xQzBXc0lxMG5xNzU5aHVONEVqTHlKdUFpZXpGQkR6UlBQWExBWGVZVTFlbGYwTDVZajFOSnY5cFB1eFhCTEtmcVJUNjJJM3RWNkFla1RUbEtUZytaSGpVUlFwN0lmbVV1Sk1rTTdHK1AxMlNDaUYrRU5ueEdUTHdsWVR0aFpYVTJZaVMwNE8xYVo3RHJYbHRWM1NzZVZNS3Rnczc3WG1CdzZOWkZuMGhyWGs3RFRMYzZXSHR3WFRYOTh5cTRlVUF3QUEifQ== -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"50","3":"192156","4":"103956","5":"47375","6":"0.7051438","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"2","2":"188","3":"768048","4":"135947","5":"324454","6":"0.7185534","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"3","2":"1","3":"1706","4":"603","5":"384","6":"NaN","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"4","2":"589","3":"2613164","4":"113614","5":"202027","6":"0.8299039","7":"NaN","8":"NaN","9":"NaN","10":"NaN"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaXRlciAgICAgNDAwMCB2YWx1ZSAxLjI0OTc4MVxuIn0= -->
-<pre><code>iter     4000 value 1.249781</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibnJvdyI6NCwibmNvbCI6MTB9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNa0RLK1lDWXhmNERBeGc0TUVCcERpZ3R3QUFEdkNCMVFHd0t4RXZCaGpFd0pjTDBPM0wwRllBVU9hcXNtd2ZXTjJzRldKT2pTOS9hQm9oK3NEcUhYd1lid1BKL0p5OEEwMDAzSVBiODY0SXFnNnA3MlhBQXJGL0k5d3BZdmdJaTZjZ3RxSUdzenY1WmszZTdYYXVKL2JNbktWRytocVgvZjBBazdWOVYvV3BQdDlnTFV3Y1R4MFVQbkRxVWlHSE5TOHhOTFFZeUJCaEFrUU1SWkM4dUtVb3NTVFNCY3RtQXZPU1NZaWlQdVNDL0FLWTVLU2N4T1J2S1ljbklMSVpKTUFVRlFWa2NlVWJ4YVptcE9TbEkvSkw4a3NRY0pENnlLZXhBUHRnZ1ZHZHlGdVdYNjhHY0Nrb1hUS0RJKy8vLy94OTAveVRuSkJiRC9BTVQ1RW9CK2tZdnJRaW9IOGo3aDZhRlBiK2dKRE0vRDZpSkNaUkNXZEUwTXhhaG13WlNueHRmbkppWHh3QkowSXpRa09XRnNsbVEyRndRMjVqK1EwMWhoUVZxYWw1NlpsNHF6Tms1aVVtcHNERGhBM29XN0ZlOWdxTE12QktZdFVEUllqM2tzT05LenMrQmlZQzl4ZkFQQUdkd2FBeVVBd0FBIn0= -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["strata4"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["tracts"],"name":[2],"type":["int"],"align":["right"]},{"label":["pop"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["black"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["hisp"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["RR"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["n2_field"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["n2_total"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["n2_black"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["n2_hisp"],"name":[10],"type":["dbl"],"align":["right"]}],"data":[{"1":"1","2":"53","3":"201166","4":"107275","5":"52230","6":"0.7034052","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"2","2":"165","3":"677711","4":"121146","5":"299893","6":"0.7153799","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"3","2":"1","3":"1706","4":"603","5":"384","6":"NaN","7":"NaN","8":"NaN","9":"NaN","10":"NaN"},{"1":"4","2":"609","3":"2694491","4":"125096","5":"221733","6":"0.8275120","7":"NaN","8":"NaN","9":"NaN","10":"NaN"}],"options":{"columns":{"min":{},"max":[10],"total":[10]},"rows":{"min":[10],"max":[10],"total":[4]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiZmluYWwgICAgICAgICB2YWx1ZSAxLjI0OTc4MVxuc2FubiBzdG9wcGVkIGFmdGVyIDQ5OTkgaXRlcmF0aW9uc1xuIn0= -->
-<pre><code>final         value 1.249781
+<!-- rnb-output-begin eyJkYXRhIjoiaXRlciAgICAgNDAwMCB2YWx1ZSAxLjI2MDg4MlxuZmluYWwgICAgICAgICB2YWx1ZSAxLjI2MDg4Mlxuc2FubiBzdG9wcGVkIGFmdGVyIDQ5OTkgaXRlcmF0aW9uc1xuIn0= -->
+<pre><code>iter     4000 value 1.260882
+final         value 1.260882
 sann stopped after 4999 iterations</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2Fubm9cbmBgYCJ9 -->
 <pre class="r"><code>sanno</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiJHBhclxuWzFdICAwLjQzMDc0NTkgIDAuNDM3MjI5MiAgMC4zOTEyNjA3IC0wLjc0MzMxMDQgLTEuMzAyODM2NCAtMS4wODk2MzQ0XG5cbiR2YWx1ZVxuWzFdIDEuMjQ5NzgxXG5cbiRjb3VudHNcbmZ1bmN0aW9uIGdyYWRpZW50IFxuICAgIDUwMDAgICAgICAgTkEgXG5cbiRjb252ZXJnZW5jZVxuWzFdIDBcblxuJG1lc3NhZ2Vcbk5VTExcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoiJHBhclxuWzFdICAwLjQ1NzU4MzcgIDAuMTkwOTkwOCAgMC4xMTg4MDM2IC0wLjIyMjk4NjQgIDAuMjY5ODA2OCAtMC40NDg3MjAwXG5cbiR2YWx1ZVxuWzFdIDEuMjYwODgyXG5cbiRjb3VudHNcbmZ1bmN0aW9uIGdyYWRpZW50IFxuICAgIDUwMDAgICAgICAgTkEgXG5cbiRjb252ZXJnZW5jZVxuWzFdIDBcblxuJG1lc3NhZ2Vcbk5VTExcbiJ9 -->
 <pre><code>$par
-[1]  0.4307459  0.4372292  0.3912607 -0.7433104 -1.3028364 -1.0896344
+[1]  0.4575837  0.1909908  0.1188036 -0.2229864  0.2698068 -0.4487200
 
 $value
-[1] 1.249781
+[1] 1.260882
 
 $counts
 function gradient 
@@ -2443,11 +2550,19 @@ NULL</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Optimization took 216.61 seconds. It is unclear whether the convergence code of TRUE means much in the context of the method. The implied design is:</p>
+<p>Optimization took 434.92 seconds. It is unclear whether the convergence code of TRUE means much in the context of the method. The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2Fubm9fZGVzaWduJHNhbXBsZV9kZXNpZ24gJT4lIFxuICBzZWxlY3QoLXBvcCwgLWJsYWNrLCAtaGlzcCwgLVJSKSAlPiUgXG4gIG11dGF0ZShcbiAgICBkZWZpbml0aW9uID0gY2FzZV93aGVuKFxuICAgICAgc3RyYXRhNCA9PSAxIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc2Fubm9fZGVzaWduJGFib3ZlX2JsYWNrKjEwMCwyKSwgXCIlIE5IIEJsYWNrXCIpLFxuICAgICAgc3RyYXRhNCA9PSAyIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc2Fubm9fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHNhbm5vX2Rlc2lnbiRhYm92ZV9taW5vcioxMDAsMiksIFwiJSBtaW5vcml0eVwiKSxcbiAgICAgIHN0cmF0YTQgPT0gNCB+IFwiTW9zdGx5IE5IIFdoaXRlXCIpXG4gICkgJT4lIHNlbGVjdChzdHJhdGE0LGRlZmluaXRpb24sIHRyYWN0cywgc3RhcnRzX3dpdGgoXCJuMlwiKSkgJT4lXG4gIG11dGF0ZShhY3Jvc3Mod2hlcmUoaXMubnVtZXJpYykscm91bmQpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtYXliZV9rYWJsZSgpXG5cbmBgYCJ9 -->
-<pre class="r"><code>sanno_design$sample_design %&gt;% 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2Fubm9fZGVzaWduIDwtIGRlc2lnbjQoXG4gIGFib3ZlX2JsYWNrPXNhbm5vJHBhclsxXSwgXG4gIGFib3ZlX2hpc3AgPXNhbm5vJHBhclsyXSwgXG4gIGFib3ZlX21pbm9yPXNhbm5vJHBhclszXSwgXG4gIG1pbnNpemUgPSAzMCxcbiAgbG9wMT1zYW5ubyRwYXJbNF0sIFxuICBsb3AyPXNhbm5vJHBhcls1XSwgXG4gIGxvcDM9c2Fubm8kcGFyWzZdKVxuc2Fubm9fZGVzaWduJHNhbXBsZV9kZXNpZ24gJT4lIFxuICBzZWxlY3QoLXBvcCwgLWJsYWNrLCAtaGlzcCwgLVJSKSAlPiUgXG4gIG11dGF0ZShcbiAgICBkZWZpbml0aW9uID0gY2FzZV93aGVuKFxuICAgICAgc3RyYXRhNCA9PSAxIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc2Fubm9fZGVzaWduJGFib3ZlX2JsYWNrKjEwMCwyKSwgXCIlIE5IIEJsYWNrXCIpLFxuICAgICAgc3RyYXRhNCA9PSAyIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoc2Fubm9fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHNhbm5vX2Rlc2lnbiRhYm92ZV9taW5vcioxMDAsMiksIFwiJSBtaW5vcml0eVwiKSxcbiAgICAgIHN0cmF0YTQgPT0gNCB+IFwiTW9zdGx5IE5IIFdoaXRlXCIpXG4gICkgJT4lIHNlbGVjdChzdHJhdGE0LGRlZmluaXRpb24sIHRyYWN0cywgc3RhcnRzX3dpdGgoXCJuMlwiKSkgJT4lXG4gIG11dGF0ZShhY3Jvc3Mod2hlcmUoaXMubnVtZXJpYykscm91bmQpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtYXliZV9rYWJsZSgpXG5gYGAifQ== -->
+<pre class="r"><code>sanno_design &lt;- design4(
+  above_black=sanno$par[1], 
+  above_hisp =sanno$par[2], 
+  above_minor=sanno$par[3], 
+  minsize = 30,
+  lop1=sanno$par[4], 
+  lop2=sanno$par[5], 
+  lop3=sanno$par[6])
+sanno_design$sample_design %&gt;% 
   select(-pop, -black, -hisp, -RR) %&gt;% 
   mutate(
     definition = case_when(
@@ -2458,20 +2573,19 @@ NULL</code></pre>
   ) %&gt;% select(strata4,definition, tracts, starts_with(&quot;n2&quot;)) %&gt;%
   mutate(across(where(is.numeric),round)) %&gt;%
   janitor::adorn_totals(&quot;row&quot;) %&gt;%
-  maybe_kable()
-</code></pre>
+  maybe_kable()</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiIHN0cmF0YTQgICAgICAgIGRlZmluaXRpb24gdHJhY3RzIG4yX2ZpZWxkIG4yX3RvdGFsIG4yX2JsYWNrIG4yX2hpc3BcbiAgICAgICAxID4gNDMuMDclIE5IIEJsYWNrICAgICAzNCAgICAgIDc0MyAgICAgIDUyOCAgICAgIDMxNSAgICAgMTA5XG4gICAgICAgMiAgICAgPiA0My43MiUgSGlzcCAgICAgODggICAgICA0MjUgICAgICAyOTIgICAgICAgNTggICAgIDE2NFxuICAgICAgIDMgPiAzOS4xMyUgbWlub3JpdHkgICAgMTA3ICAgICAgNTI1ICAgICAgMzg2ICAgICAgIDg0ICAgICAxMjFcbiAgICAgICA0ICAgTW9zdGx5IE5IIFdoaXRlICAgIDU5OSAgICAgMTU2MiAgICAgMTI5NSAgICAgICA1MyAgICAgMTA3XG4gICBUb3RhbCAgICAgICAgICAgICAgICAgLSAgICA4MjggICAgIDMyNTUgICAgIDI1MDEgICAgICA1MTAgICAgIDUwMVxuIn0= -->
+<!-- rnb-output-begin eyJkYXRhIjoiIHN0cmF0YTQgICAgICAgIGRlZmluaXRpb24gdHJhY3RzIG4yX2ZpZWxkIG4yX3RvdGFsIG4yX2JsYWNrIG4yX2hpc3BcbiAgICAgICAxID4gNDUuNzYlIE5IIEJsYWNrICAgICAzMSAgICAgIDY5NSAgICAgIDQ5NSAgICAgIDMwMiAgICAgIDk4XG4gICAgICAgMiAgICAgID4gMTkuMSUgSGlzcCAgICAyMzcgICAgIDExMzggICAgICA4MjQgICAgICAxNTMgICAgIDMyMlxuICAgICAgIDMgPiAxMS44OCUgbWlub3JpdHkgICAgMTkxICAgICAgNTU1ICAgICAgNDQ1ICAgICAgIDM5ICAgICAgNTRcbiAgICAgICA0ICAgTW9zdGx5IE5IIFdoaXRlICAgIDM2OSAgICAgIDg2OSAgICAgIDczNyAgICAgICAxMiAgICAgIDMzXG4gICBUb3RhbCAgICAgICAgICAgICAgICAgLSAgICA4MjggICAgIDMyNTcgICAgIDI1MDEgICAgICA1MDYgICAgIDUwN1xuIn0= -->
 <pre><code> strata4        definition tracts n2_field n2_total n2_black n2_hisp
-       1 &gt; 43.07% NH Black     34      743      528      315     109
-       2     &gt; 43.72% Hisp     88      425      292       58     164
-       3 &gt; 39.13% minority    107      525      386       84     121
-       4   Mostly NH White    599     1562     1295       53     107
-   Total                 -    828     3255     2501      510     501</code></pre>
+       1 &gt; 45.76% NH Black     31      695      495      302      98
+       2      &gt; 19.1% Hisp    237     1138      824      153     322
+       3 &gt; 11.88% minority    191      555      445       39      54
+       4   Mostly NH White    369      869      737       12      33
+   Total                 -    828     3257     2501      506     507</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>DEFF is improved at 1.2497813 but does not reach the better levels produced by the deterministic algorithms.</p>
+<p>DEFF is improved at 1.2608816 but does not reach the better levels produced by the deterministic algorithms.</p>
 </div>
 <div id="optim-bfgs" class="section level3">
 <h3>optim: BFGS</h3>
@@ -2501,7 +2615,7 @@ NULL</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>The design effect is OK at 1.2372869.</p>
-<p>Optimization took 9.29 seconds and converged succesfully. The implied design is:</p>
+<p>Optimization took 29.19 seconds and converged succesfully. The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmZnc29fZGVzaWduIDwtIGRlc2lnbjQoXG4gIGFib3ZlX2JsYWNrPWJmZ3NvJHBhclsxXSwgXG4gIGFib3ZlX2hpc3AgPWJmZ3NvJHBhclsyXSwgXG4gIGFib3ZlX21pbm9yPWJmZ3NvJHBhclszXSwgXG4gIG1pbnNpemUgPSAzMCxcbiAgbG9wMT1iZmdzbyRwYXJbNF0sIFxuICBsb3AyPWJmZ3NvJHBhcls1XSwgXG4gIGxvcDM9YmZnc28kcGFyWzZdKVxuYmZnc29fZGVzaWduJHNhbXBsZV9kZXNpZ24gJT4lIFxuICBzZWxlY3QoLXBvcCwgLWJsYWNrLCAtaGlzcCwgLVJSKSAlPiUgXG4gIG11dGF0ZShcbiAgICBkZWZpbml0aW9uID0gY2FzZV93aGVuKFxuICAgICAgc3RyYXRhNCA9PSAxIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoYmZnc29fZGVzaWduJGFib3ZlX2JsYWNrKjEwMCwyKSwgXCIlIE5IIEJsYWNrXCIpLFxuICAgICAgc3RyYXRhNCA9PSAyIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoYmZnc29fZGVzaWduJGFib3ZlX2hpc3AqMTAwLDIpLCBcIiUgSGlzcFwiKSxcbiAgICAgIHN0cmF0YTQgPT0gMyB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKGJmZ3NvX2Rlc2lnbiRhYm92ZV9taW5vcioxMDAsMiksIFwiJSBtaW5vcml0eVwiKSxcbiAgICAgIHN0cmF0YTQgPT0gNCB+IFwiTW9zdGx5IE5IIFdoaXRlXCIpXG4gICkgJT4lIHNlbGVjdChzdHJhdGE0LGRlZmluaXRpb24sIHRyYWN0cywgc3RhcnRzX3dpdGgoXCJuMlwiKSkgJT4lXG4gIG11dGF0ZShhY3Jvc3Mod2hlcmUoaXMubnVtZXJpYykscm91bmQpKSAlPiVcbiAgamFuaXRvcjo6YWRvcm5fdG90YWxzKFwicm93XCIpICU+JVxuICBtYXliZV9rYWJsZSgpXG5gYGAifQ== -->
@@ -2541,10 +2655,9 @@ bfgso_design$sample_design %&gt;%
 <h3>optim: L-BFGS-B</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKGJveG8gPC0gb3B0aW0oZm49ZGVzaWduNF9vcHQscGFyPWMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpLG1ldGhvZD1cIkwtQkZHUy1CXCIsXG4gIGxvd2VyPWMoMC4yLDAuMiwwLjIsLTUsLTUsLTUpLCB1cHBlcj1jKDAuOSwwLjksMC45LDUsNSw1KSxjb250cm9sPWxpc3QodHJhY2U9MykpKVxuXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKGJveG8gPC0gb3B0aW0oZm49ZGVzaWduNF9vcHQscGFyPWMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpLG1ldGhvZD1cIkwtQkZHUy1CXCIsXG4gIGxvd2VyPWMoMC4yLDAuMiwwLjIsLTUsLTUsLTUpLCB1cHBlcj1jKDAuOSwwLjksMC45LDUsNSw1KSxjb250cm9sPWxpc3QodHJhY2U9MykpKVxuYGBgIn0= -->
 <pre class="r"><code>(boxo &lt;- optim(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method=&quot;L-BFGS-B&quot;,
-  lower=c(0.2,0.2,0.2,-5,-5,-5), upper=c(0.9,0.9,0.9,5,5,5),control=list(trace=3)))
-</code></pre>
+  lower=c(0.2,0.2,0.2,-5,-5,-5), upper=c(0.9,0.9,0.9,5,5,5),control=list(trace=3)))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiTiA9IDYsIE0gPSA1IG1hY2hpbmUgcHJlY2lzaW9uID0gMi4yMjA0NWUtMTZcbkF0IFgwLCAwIHZhcmlhYmxlcyBhcmUgZXhhY3RseSBhdCB0aGUgYm91bmRzXG5BdCBpdGVyYXRlICAgICAwICBmPSAgICAgICAxLjM5MzcgIHxwcm9qIGd8PSAgICAgIDAuMjY5NTlcbnlzPS0xLjk1OWUtMDMgIC1ncz0gMi40NTVlLTAyLCBCRkdTIHVwZGF0ZSBTS0lQUEVEXG5CYWQgZGlyZWN0aW9uIGluIHRoZSBsaW5lIHNlYXJjaDtcbiAgIHJlZnJlc2ggdGhlIGxiZmdzIG1lbW9yeSBhbmQgcmVzdGFydCB0aGUgaXRlcmF0aW9uLlxuTGluZSBzZWFyY2ggY2Fubm90IGxvY2F0ZSBhbiBhZGVxdWF0ZSBwb2ludCBhZnRlciAyMCBmdW5jdGlvblxuYW5kIGdyYWRpZW50IGV2YWx1YXRpb25zXG5maW5hbCAgdmFsdWUgMS4zMTc5OTIgXG5zdG9wcGVkIGFmdGVyIDcgaXRlcmF0aW9uc1xuJHBhclxuWzFdICAwLjQwMDAwMDAgIDAuMzIxOTk3NyAgMC4yODE4NjcwIC0wLjU1NjQ4NTAgLTAuNjM1MjE4MSAtMC42MTk0NTIzXG5cbiR2YWx1ZVxuWzFdIDEuMzE3OTkyXG5cbiRjb3VudHNcbmZ1bmN0aW9uIGdyYWRpZW50IFxuICAgICAgODEgICAgICAgODEgXG5cbiRjb252ZXJnZW5jZVxuWzFdIDUyXG5cbiRtZXNzYWdlXG5bMV0gXCJFUlJPUjogQUJOT1JNQUxfVEVSTUlOQVRJT05fSU5fTE5TUkNIXCJcbiJ9 -->
 <pre><code>N = 6, M = 5 machine precision = 2.22045e-16
@@ -2579,7 +2692,7 @@ $message
 <p>The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9Ym94byRwYXJbMV0sIFxuICBhYm92ZV9oaXNwID1ib3hvJHBhclsyXSwgXG4gIGFib3ZlX21pbm9yPWJveG8kcGFyWzNdLCBcbiAgbWluc2l6ZSA9IDMwLFxuICBsb3AxPWJveG8kcGFyWzRdLCBcbiAgbG9wMj1ib3hvJHBhcls1XSwgXG4gIGxvcDM9Ym94byRwYXJbNl0pXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduNChcbiAgYWJvdmVfYmxhY2s9Ym94byRwYXJbMV0sIFxuICBhYm92ZV9oaXNwID1ib3hvJHBhclsyXSwgXG4gIGFib3ZlX21pbm9yPWJveG8kcGFyWzNdLCBcbiAgbWluc2l6ZSA9IDMwLFxuICBsb3AxPWJveG8kcGFyWzRdLCBcbiAgbG9wMj1ib3hvJHBhcls1XSwgXG4gIGxvcDM9Ym94byRwYXJbNl0pXG5gYGAifQ== -->
 <pre class="r"><code>design4(
   above_black=boxo$par[1], 
   above_hisp =boxo$par[2], 
@@ -2587,8 +2700,7 @@ $message
   minsize = 30,
   lop1=boxo$par[4], 
   lop2=boxo$par[5], 
-  lop3=boxo$par[6])
-</code></pre>
+  lop3=boxo$par[6])</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiJGFib3ZlX2JsYWNrXG5bMV0gMC40XG5cbiRhYm92ZV9oaXNwXG5bMV0gMC4zMjE5OTc3XG5cbiRhYm92ZV9taW5vclxuWzFdIDAuMjgxODY3XG5cbiRuX3RvdGFsXG5bMV0gMjUwMFxuXG4kbl9ibGFja1xuWzFdIDUwMC4wNjU1XG5cbiRuX2hpc3BcblsxXSA1MjguNjExMVxuXG4kZGVmZlxuICAgICAgICAgXG4xLjMxNzk5MiBcblxuJHAxXG5bMV0gMC4yMTcwMjM4XG5cbiRwMlxuWzFdIDAuMjAwNTkyMVxuXG4kcDNcblsxXSAwLjIwMzc3OTdcblxuJHA0XG5bMV0gMC4zNzg2MDQ0XG5cbiRmb2JqXG4gICAgICAgICBcbjEuMzE3OTkyIFxuXG4kc2FtcGxlX2Rlc2lnblxuIn0= -->
 <pre><code>$above_black
@@ -2658,14 +2770,27 @@ $sample_design</code></pre>
 <h3>optimx::optimx, method=‘BFGS’</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHhvX2JmZ3MudGltZSA8LSBzeXN0ZW0udGltZShcbiAgeG9fYmZncyA8LSBvcHRpbXg6Om9wdGlteChmbj1kZXNpZ240X29wdCxwYXI9YygwLjQsMC40LDAuMywtMC41LC0wLjUsLTAuNSksbWV0aG9kPSdCRkdTJykpKVxueG9fYmZnc1xuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHhvX2JmZ3MudGltZSA8LSBzeXN0ZW0udGltZShcbiAgeG9fYmZncyA8LSBvcHRpbXg6Om9wdGlteChmbj1kZXNpZ240X29wdCxwYXI9YygwLjQsMC40LDAuMywtMC41LC0wLjUsLTAuNSksbWV0aG9kPSdCRkdTJykpKVxuYGBgIn0= -->
 <pre class="r"><code>(xo_bfgs.time &lt;- system.time(
-  xo_bfgs &lt;- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method=&#39;BFGS&#39;)))
-xo_bfgs</code></pre>
+  xo_bfgs &lt;- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method=&#39;BFGS&#39;)))</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gIDYxLjQxICAgIDAuMjggICA3My4yNSBcbiJ9 -->
+<pre><code>   user  system elapsed 
+  61.41    0.28   73.25 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fYmZnc1xuYGBgIn0= -->
+<pre class="r"><code>xo_bfgs</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbIm9wdGlteCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6MTR9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNdmlnbU5IKzVrd1FtQVhuMzNpZnM4Lzk3aUU0LzJMeWU5MldRRkVZZi85RHA5QURWVXRXd3ZrZkhwaE0wbmtpQ09lL2p2dVNlOWd2R2E3LzgrbTNvV3RQN1lMeEhZSWRHS0FBd3RkalFPSFhmd0F4MlJmQitBd0l3SVhFUjJaRHpMR3ZDSHpkS3JjQXpjT3NlWW01cWNWQWhnQllJVVNRcWNBUXpqS0NzNHpoTEJNNHl4VE9Nb01aV0phWVU1b0s1YkNscFFLNXhUQmVPaktQTlMrekpMVUl5dUZJenM4clM4NVBnV2xreWM0dU1VUml3MXpCV2xHU21adUs3b2Zrbk1SaW1COWdnbHdwaVNXSmVtbEZpUmpLT1l2eXkvV1F2UTJUWUhGeWN3OEcwdi9RTkxEbkY1Ums1dWNCbFRPQmtnWXJtamJHSWpRQmJwRDYzSXI0cExUMFlxU29BR0ZlTEd3K2lIVk0vNkhHc01LQ0t6VXZQVE1QRmlLc09ZbEpxVGxRRGgvUUMyQWY2QlVVWmVhVndMd01GQzNXSzhrdlNZU3A0MHJPejRHSmdQM0Y4QThBVmtTWlhBNERBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["p1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p2"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p3"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p4"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p5"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p6"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["value"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["fevals"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["gevals"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["niter"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["convcode"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kkt1"],"name":[12],"type":["lgl"],"align":["right"]},{"label":["kkt2"],"name":[13],"type":["lgl"],"align":["right"]},{"label":["xtime"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.4","2":"0.3896133","3":"0.2717245","4":"-0.5393475","5":"-1.054738","6":"-0.8553412","7":"1.237287","8":"77","9":"15","10":"NA","11":"0","12":"FALSE","13":"FALSE","14":"31.47","_rn_":"BFGS"}],"options":{"columns":{"min":{},"max":[10],"total":[14]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Optimization took 23.02 seconds and converged succesfully.</p>
+<p>Optimization took 73.25 seconds and converged succesfully.</p>
 <p>The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
@@ -2707,33 +2832,63 @@ xo_bfgs_design$sample_design %&gt;%
 <h3>optimx::optimx, method=‘Nelder-Mead’</h3>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fbm0xLnRpbWVcblxuYGBgIn0= -->
-<pre class="r"><code>xo_nm1.time
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHhvX25tMS50aW1lIDwtIHN5c3RlbS50aW1lKFxuICB4b19ubTEgPC0gb3B0aW14OjpvcHRpbXgoZm49ZGVzaWduNF9vcHQscGFyPWMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpLG1ldGhvZD0nTmVsZGVyLU1lYWQnKSkpXG5gYGAifQ== -->
+<pre class="r"><code>(xo_nm1.time &lt;- system.time(
+  xo_nm1 &lt;- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),method=&#39;Nelder-Mead&#39;)))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gIDI4LjAxICAgIDAuMDYgICAyOC4xNyBcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gMTAyLjE5ICAgIDAuNjEgIDExNy4xMSBcbiJ9 -->
 <pre><code>   user  system elapsed 
-  28.01    0.06   28.17 </code></pre>
+ 102.19    0.61  117.11 </code></pre>
 <!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fbm0xXG5gYGAifQ== -->
+<pre class="r"><code>xo_nm1</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbIm9wdGlteCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6MTR9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNdmlnbU5IK1hzS2JvTUtZUlhEK2RjK25MNVo5NElMemowcGVQVE9qY1EyTXYvKyt1bUpic0ErQy80RDdjOGI5SGU4UjhoeS84M2YrZWdyWC8vbkdWdGNGRHkxZ2ZJZjZBQVlvQVBQclA0Q1k3SXR3OGUwL3dKUXpjSUU5Z3NtR21CdTRSK1Byb2Y0SU5BK3o1aVhtcGhZREdRSmdoUkJCcGdKRE9Nc0l6aktHczB6Z0xGTTR5d3htWUZsaVRta3FsTU9XbGdya0ZzTjQ2Y2c4MXJ6TWt0UWlLSWNqT1QrdkxEay9CYWFSSlR1N3hCQ0pEWE1GYTBWSlptNHF1aCtTY3hLTFlYNkFDWEtsSkpZazZxVVZKV0lvNXl6S0w5ZEQ5alpNZ3Rzdk5TY2x0VWpYTnpVeEJjajloNmFQUGIrZ0pETS9ENmlMQ1pSQ1dORjBNeGFodXdDa1ByY2lQaS9YRUNsQ1FKZ1hDNXNQWWh2VGY2Z3ByTEJBUzgxTHo4eURoUXRyVG1KU2FnNlV3d2YwQ05nZmVnVkZtWGtsTUd1Qm9zVjZKZmtsaVRCMVhNbjVPVEFSc0xjWS9nRUF2MTNmc0JRREFBQT0ifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["p1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p2"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p3"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p4"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p5"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p6"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["value"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["fevals"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["gevals"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["niter"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["convcode"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kkt1"],"name":[12],"type":["lgl"],"align":["right"]},{"label":["kkt2"],"name":[13],"type":["lgl"],"align":["right"]},{"label":["xtime"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.4746657","2":"0.3638854","3":"0.1648509","4":"-0.4867634","5":"-0.5014588","6":"-0.4849232","7":"1.240407","8":"501","9":"NA","10":"NA","11":"1","12":"FALSE","13":"FALSE","14":"70.94","_rn_":"Nelder-Mead"}],"options":{"columns":{"min":{},"max":[10],"total":[14]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Optimization took 28.17 seconds and did not converge with the default number of iterations. That number was increased to 2000 from the default 500.</p>
+<p>Optimization took 117.11 seconds and did not converge with the default number of iterations. That number was increased to 2000 from the default 500.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHhvX25tMi50aW1lIDwtIHN5c3RlbS50aW1lKFxuICB4b19ubTIgPC0gb3B0aW14OjpvcHRpbXgoZm49ZGVzaWduNF9vcHQscGFyPWMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbWV0aG9kPSdOZWxkZXItTWVhZCcsIGl0bm1heD0yMDAwKSkpXG54b19ubTJcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuKHhvX25tMi50aW1lIDwtIHN5c3RlbS50aW1lKFxuICB4b19ubTIgPC0gb3B0aW14OjpvcHRpbXgoZm49ZGVzaWduNF9vcHQscGFyPWMoMC40LDAuNCwwLjMsLTAuNSwtMC41LC0wLjUpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgbWV0aG9kPSdOZWxkZXItTWVhZCcsIGl0bm1heD0yMDAwKSkpXG5gYGAifQ== -->
 <pre class="r"><code>(xo_nm2.time &lt;- system.time(
   xo_nm2 &lt;- optimx::optimx(fn=design4_opt,par=c(0.4,0.4,0.3,-0.5,-0.5,-0.5),
-                           method=&#39;Nelder-Mead&#39;, itnmax=2000)))
-xo_nm2</code></pre>
+                           method=&#39;Nelder-Mead&#39;, itnmax=2000)))</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgdXNlciAgc3lzdGVtIGVsYXBzZWQgXG4gMjE2Ljg2ICAgIDEuNTEgIDI2NC43OCBcbiJ9 -->
+<pre><code>   user  system elapsed 
+ 216.86    1.51  264.78 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fbm0yXG5gYGAifQ== -->
+<pre class="r"><code>xo_nm2</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbIm9wdGlteCIsImRhdGEuZnJhbWUiXSwibnJvdyI6MSwibmNvbCI6MTR9LCJyZGYiOiJINHNJQUFBQUFBQUFCZ3R5aVREbWl1QmlZR0JnWm1CaFlHSmdaZ1V5R2RpY0F3eU5USTBZR0ZpWWdEeEdvQXduaUs0QXFoSUdNdmlnbU5IK252RUhlYS9QMFhEK2RjOW51Vm1ycDhENVJ6NDhQYnZxaXdDTXYvOSt5ZmFhLzdjK0lQaWJRMXRPQloyQzgrK2EvcHlmSmxVQTEvLzVkSnVsd2RWNEdOOWgwaDhHS0FEejYwRW1NYkF2d3NWblFBQXVKRDR5RzJKdWVyVXhFSmlnZVpnMUx6RTN0UmpJZ0hnQUlzaFVZQWhuR2NGWnhuQ1dDWnhsQ21lWndRd3NTOHdwVFlWeTJOSlNnZHhpR0M4ZG1jZWFsMW1TV2dUbGNDVG41NVVsNTZmQU5MSmtaNWNZSXJGaHJtQ3RLTW5NVFVYM1EzSk9ZakhNRHpCQnJwVEVra1M5dEtKRURPV2NSZm5sZXNqZWhrbHcrNlhtcEtRVzZmcW1KcVlBdWYvUTlMSG5GNVJrNXVjQmRUR0JVZ2dybW03R0luUVhnTlRuVnNUbjVSb2hSUWdJODJKaDgwRnNZL29QTllVVkZtaXBlZW1aZWJCd1ljMUpURXJOZ1hMNGdCNEIrME92b0NnenJ3Um1MVkMwV0s4a3Z5UVJwbzRyT1Q4SEpnTDJGc00vQU9NbWZYZ1VBd0FBIn0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["p1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["p2"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["p3"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["p4"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["p5"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["p6"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["value"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["fevals"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["gevals"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["niter"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["convcode"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["kkt1"],"name":[12],"type":["lgl"],"align":["right"]},{"label":["kkt2"],"name":[13],"type":["lgl"],"align":["right"]},{"label":["xtime"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.47192","2":"0.3638855","3":"0.1636016","4":"-0.4914988","5":"-0.4953207","6":"-0.4564194","7":"1.237189","8":"1215","9":"NA","10":"NA","11":"0","12":"FALSE","13":"FALSE","14":"187.85","_rn_":"Nelder-Mead"}],"options":{"columns":{"min":{},"max":[10],"total":[14]},"rows":{"min":[10],"max":[10],"total":[1]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Optimization took 69.58 seconds and converged succesfully.</p>
+<p>Optimization took 264.78 seconds and converged succesfully.</p>
 <p>The implied design is:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fbm1fZGVzaWduJHNhbXBsZV9kZXNpZ24gJT4lIFxuICBzZWxlY3QoLXBvcCwgLWJsYWNrLCAtaGlzcCwgLVJSKSAlPiUgXG4gIGphbml0b3I6OmFkb3JuX3RvdGFscyhcInJvd1wiKSAlPiVcbiAgbXV0YXRlKGFjcm9zcyh3aGVyZShpcy5udW1lcmljKSxyb3VuZCkpICU+JVxuICBtdXRhdGUoXG4gICAgZGVmaW5pdGlvbiA9IGNhc2Vfd2hlbihcbiAgICAgIHN0cmF0YTQgPT0gMSB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHhvX25tX2Rlc2lnbiRhYm92ZV9ibGFjayoxMDAsMiksIFwiJSBOSCBCbGFja1wiKSxcbiAgICAgIHN0cmF0YTQgPT0gMiB+IHBhc3RlMChcIj4gXCIsIHJvdW5kKHhvX25tX2Rlc2lnbiRhYm92ZV9oaXNwKjEwMCwyKSwgXCIlIEhpc3BcIiksXG4gICAgICBzdHJhdGE0ID09IDMgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZCh4b19ubV9kZXNpZ24kYWJvdmVfbWlub3IqMTAwLDIpLCBcIiUgbWlub3JpdHlcIiksXG4gICAgICBzdHJhdGE0ID09IDQgfiBcIk1vc3RseSBOSCBXaGl0ZVwiKVxuICApICU+JSBzZWxlY3Qoc3RyYXRhNCxkZWZpbml0aW9uLCB0cmFjdHMsIHN0YXJ0c193aXRoKFwibjJcIikpICU+JVxuICBtYXliZV9rYWJsZSgpXG5cbmBgYCJ9 -->
-<pre class="r"><code>xo_nm_design$sample_design %&gt;% 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueG9fbm1fZGVzaWduIDwtIGRlc2lnbjQoXG4gIGFib3ZlX2JsYWNrPXhvX25tMiRwMSwgXG4gIGFib3ZlX2hpc3AgPXhvX25tMiRwMiwgXG4gIGFib3ZlX21pbm9yPXhvX25tMiRwMywgXG4gIGxvcDE9eG9fbm0yJHA0LCBcbiAgbG9wMj14b19ubTIkcDUsIFxuICBsb3AzPXhvX25tMiRwNilcbnhvX25tX2Rlc2lnbiRzYW1wbGVfZGVzaWduICU+JSBcbiAgc2VsZWN0KC1wb3AsIC1ibGFjaywgLWhpc3AsIC1SUikgJT4lIFxuICBqYW5pdG9yOjphZG9ybl90b3RhbHMoXCJyb3dcIikgJT4lXG4gIG11dGF0ZShhY3Jvc3Mod2hlcmUoaXMubnVtZXJpYykscm91bmQpKSAlPiVcbiAgbXV0YXRlKFxuICAgIGRlZmluaXRpb24gPSBjYXNlX3doZW4oXG4gICAgICBzdHJhdGE0ID09IDEgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZCh4b19ubV9kZXNpZ24kYWJvdmVfYmxhY2sqMTAwLDIpLCBcIiUgTkggQmxhY2tcIiksXG4gICAgICBzdHJhdGE0ID09IDIgfiBwYXN0ZTAoXCI+IFwiLCByb3VuZCh4b19ubV9kZXNpZ24kYWJvdmVfaGlzcCoxMDAsMiksIFwiJSBIaXNwXCIpLFxuICAgICAgc3RyYXRhNCA9PSAzIH4gcGFzdGUwKFwiPiBcIiwgcm91bmQoeG9fbm1fZGVzaWduJGFib3ZlX21pbm9yKjEwMCwyKSwgXCIlIG1pbm9yaXR5XCIpLFxuICAgICAgc3RyYXRhNCA9PSA0IH4gXCJNb3N0bHkgTkggV2hpdGVcIilcbiAgKSAlPiUgc2VsZWN0KHN0cmF0YTQsZGVmaW5pdGlvbiwgdHJhY3RzLCBzdGFydHNfd2l0aChcIm4yXCIpKSAlPiVcbiAgbWF5YmVfa2FibGUoKVxuYGBgIn0= -->
+<pre class="r"><code>xo_nm_design &lt;- design4(
+  above_black=xo_nm2$p1, 
+  above_hisp =xo_nm2$p2, 
+  above_minor=xo_nm2$p3, 
+  lop1=xo_nm2$p4, 
+  lop2=xo_nm2$p5, 
+  lop3=xo_nm2$p6)
+xo_nm_design$sample_design %&gt;% 
   select(-pop, -black, -hisp, -RR) %&gt;% 
   janitor::adorn_totals(&quot;row&quot;) %&gt;%
   mutate(across(where(is.numeric),round)) %&gt;%
@@ -2744,8 +2899,7 @@ xo_nm2</code></pre>
       strata4 == 3 ~ paste0(&quot;&gt; &quot;, round(xo_nm_design$above_minor*100,2), &quot;% minority&quot;),
       strata4 == 4 ~ &quot;Mostly NH White&quot;)
   ) %&gt;% select(strata4,definition, tracts, starts_with(&quot;n2&quot;)) %&gt;%
-  maybe_kable()
-</code></pre>
+  maybe_kable()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-output-begin eyJkYXRhIjoiIHN0cmF0YTQgICAgICAgIGRlZmluaXRpb24gdHJhY3RzIG4yX2ZpZWxkIG4yX3RvdGFsIG4yX2JsYWNrIG4yX2hpc3BcbiAgICAgICAxID4gNDcuMTklIE5IIEJsYWNrICAgICAzMCAgICAgIDY5NyAgICAgIDQ5NiAgICAgIDMwNyAgICAgIDk0XG4gICAgICAgMiAgICAgPiAzNi4zOSUgSGlzcCAgICAxMjYgICAgICA2OTQgICAgICA0ODQgICAgICAgOTkgICAgIDI0N1xuICAgICAgIDMgPiAxNi4zNiUgbWlub3JpdHkgICAgMjM3ICAgICAgNzIyICAgICAgNTU4ICAgICAgIDc3ICAgICAxMDlcbiAgICAgICA0ICAgTW9zdGx5IE5IIFdoaXRlICAgIDQzNSAgICAgMTE0MCAgICAgIDk2MiAgICAgICAxOCAgICAgIDUxXG4gICBUb3RhbCAgICAgICAgICAgICAgPE5BPiAgICA4MjggICAgIDMyNTMgICAgIDI1MDAgICAgICA1MDEgICAgIDUwMVxuIn0= -->
 <pre><code> strata4        definition tracts n2_field n2_total n2_black n2_hisp
@@ -2765,10 +2919,18 @@ xo_nm2</code></pre>
 <p>Design effects achieved:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NiwibmNvbCI6Mn0sInJkZiI6Ikg0c0lBQUFBQUFBQUJtVlJzVTdETUJSMDNTU29vVVZJYkh4RUJFVU1UQm5nQXhBU1VnY2t5Mm1jS0pKalY3RWxPakx4TVVnTWJLZzdDOHg4QXhOVDlwYm54RmFwNjhYdjNidTc1MHZ1Ym1ZWDhTeEdDQTFSZ0RBYWhsQ2k2UHIyZkhvNVJTakEwQTFnTWpMM0VsZ25VQmp3Mk5Ec1lKd1ZwWklrWjZvcWhjVU9CYTg5YUt5b0VIdVlKcUxleFk2V2toaEhqd25vbGdrczg0QzAvZnE5Zi8xY3BlM2JBMzZwY05wdVR0OVhQeCtBUDErZGZaUHR2Tys5UktHZ05WTTJEYlpndExNMnlGbFJlTEpSSXg4VEo1MFk2UlBxVHVUN3p6bFZ6dCtCY1U0MVRZb0c5TkN0UGNtQlhPaEtDaEJoODZsRFR6eG85dHpnZlVUVGpCdTN1SnYwWjJMcjZGK04rMjE0WTExQ2w1bUpzaExNUFp2VGpISDNOeUJzbHpWWk5KWFFiaTJnS3RGU1U4ZUw1NUk3cEl1RjFuK1FzcTkrWFFJQUFBPT0ifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGVzaWduX2RmIDwtIGRhdGEuZnJhbWUoZGVzaWduPWxzKClbd2hpY2goc3RyX2RldGVjdChscygpLFwiX2Rlc2lnblwiKSldLCBkZWZmPU5BKVxuZm9yIChpIGluIDE6bnJvdyhkZXNpZ25fZGYpKSB7XG4gIHRoaXNfZGVzaWduIDwtIGdldCggZGVzaWduX2RmW2ksXCJkZXNpZ25cIl0gKVxuICBkZXNpZ25fZGZbaSxcImRlZmZcIl0gPC0gdGhpc19kZXNpZ24kZGVmZlxufVxuZGVzaWduX2RmICU+JSBtYXliZV9rYWJsZSgpXG5gYGAifQ== -->
+<pre class="r"><code>design_df &lt;- data.frame(design=ls()[which(str_detect(ls(),&quot;_design&quot;))], deff=NA)
+for (i in 1:nrow(design_df)) {
+  this_design &lt;- get( design_df[i,&quot;design&quot;] )
+  design_df[i,&quot;deff&quot;] &lt;- this_design$deff
+}
+design_df %&gt;% maybe_kable()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NiwibmNvbCI6Mn0sInJkZiI6Ikg0c0lBQUFBQUFBQUJndHlpVERtaXVCaVlHQmdabUJoWUdKZ1pnVXlHZGljQXd5TlRJMFlHRmlZZ0R4R29Bd25pSzRBcWhJR01rQ0NBaUJsVUFtZXBMVDA0dno0bE5UaXpQUThxQmgzWGs0dW1oQlBjV0plSG9aWVNYeGVMcW9ZWDBWK1BNaEVOSlZBVVlSS29DcVFBK3cvbjM0YnV2YlVMdnZQRzJPWVZtVXkyWC9SbWFROVRYVUNVTHpOMHVCcVBFSWV3a2Z6RVd0ZVltNXFNZFEzVEZCQk5oUnJXVkpTMDlMUXRIRVc1WmZyd2JUeWdyUTJNSUFCRzdyNXlUbUp4VER6WVlKY0tZa2xpWHBwUlVEOVFONC9OQzNzK1FVbG1mbDVRRTFNb0tCbVJkUE1XSVJoR3RCOThTV0pTVGtnMDdqQU1oREFDMld6SWJHWklMWXgvWWVhd2dyemMycGVlbVplS3N6Wk9ZbEpxVG13MkFCNkZ1eFh2WUtpekx3U21MVkEwV0s5a3Z5U1JKZzZydVQ4SEpnSTJGc00vd0E5SXVwTFhRSUFBQT09In0= -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["design"],"name":[1],"type":["chr"],"align":["left"]},{"label":["deff"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"bfgso_design","2":"1.237287"},{"1":"nlmo_design","2":"1.230801"},{"1":"sanno_design","2":"1.249781"},{"1":"st_nm_design","2":"1.237189"},{"1":"xo_bfgs_design","2":"1.237287"},{"1":"xo_nm_design","2":"1.237189"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+{"columns":[{"label":["design"],"name":[1],"type":["chr"],"align":["left"]},{"label":["deff"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"bfgso_design","2":"1.237287"},{"1":"nlmo_design","2":"1.230801"},{"1":"sanno_design","2":"1.260882"},{"1":"st_nm_design","2":"1.237189"},{"1":"xo_bfgs_design","2":"1.237287"},{"1":"xo_nm_design","2":"1.237189"}],"options":{"columns":{"min":{},"max":[10],"total":[2]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-frame-end -->
