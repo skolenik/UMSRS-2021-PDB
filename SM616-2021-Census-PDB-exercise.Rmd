@@ -46,6 +46,15 @@ maybe_kable <- function(x, bg='black') {
 
 ```
 
+## Show of hands
+
+1. Name!
+2. Where you are from (location and affiliation).
+3. The most interesting thing you've learned so far in SPSS.
+4. R? Stata? SAS? SPSS? Python? MATLAB?
+
+---
+
 ## Outline
 
 1. The U.S. Census Planning Database, U.S. Census geography, race/ethnicity
@@ -63,6 +72,20 @@ libs <- c('tidyverse', 'here', 'knitr', # 'vtable',
 for( l in libs) {
   library(l, character.only = TRUE)
 }
+```
+
+The best way to proceed with this workshop is:
+
+1. Create a new RStudio project for this workshop in a new folder.
+1. Download the .Rmd file from Canvas.
+1. Download the .csv file from Canvas into PDB subfolder.
+1. Open the .Rmd file and "Run all chunks" from RStudio menu.
+1. `install.packages("library_name")` whatever you may  be missing.
+
+In Stata, you should be able to read the data file as:
+
+```
+import delimited using PDB/pdb2021trv3_ct.csv, clear
 ```
 
 ```{r technical_stuff, echo=FALSE}
