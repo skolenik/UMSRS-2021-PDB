@@ -262,7 +262,22 @@ Four strata:
 
 ## Adjusting response rates
 
-We are given the target of 
+We are given the target of `r (arr <- 0.15)*100`% anticipated response rate. 
+I will adjust the rates given by the `Low_Response_Score` variable 
+on the logit scale as follows. Denote the `Low_Response_Score` for
+tract `j` as `R_j`. Then we will have the following sequence of
+transformations:
+
+$$
+R_j \rightarrow \Lambda_j = \ln \frac{R_j}{1-R_j} \rightarrow 
+\lambda_j = \Lambda_j+\alpha \rightarrow r_j = \frac{1}{1+\exp(-\lambda_j)}
+$$
+
+The transformation parameter $\alpha$ needs to be chosen so that
+the overall response rate $\sum_j w_j r_j$ equals the target
+(here, $w_j$ is the population fraction in tract $j$, the ratio of 
+`Total_Population_ACS_15_19` in the tract to the sum of that variable 
+over the state.)
 
 ```{r adjust_rr}
 # adjust the response rates on the log odds scale
@@ -295,6 +310,13 @@ while ( abs(
     )
   }
 }
+ggplot(PDB_CT %>% 
+         rename(`Tract Pop`=Tot_Population_ACS_15_19) ) +
+  geom_point(aes(y=r2,x=Low_Response_Score,
+                 size=`Tract Pop`),
+                 fill='#48A9C5', colour='black', shape=21) +
+  ylab('Adjusted response rate') + xlab('Low Response Score') + 
+  theme_light()  
 ```
 
 ## Optimization target
@@ -324,7 +346,7 @@ bfgso_arr.time <- system.time(
 bfgso_arr
 ```
 
-The design effect is high at `r bfgso_arr$value`.
+The design effect is `r bfgso_arr$value`.
 
 Optimization took `r bfgso_arr.time["elapsed"]` seconds and 
 `r ifelse(bfgso_arr$convergence==0,"converged succesfully","did not converge")`.
@@ -340,20 +362,20 @@ bfgso_arr_design <- design4_arr(
   lop2=bfgso_arr$par[5], 
   lop3=bfgso_arr$par[6])
 bfgso_arr_design$sample_design %>% 
-  select(-pop, -black, -hisp, -RR) %>% 
   mutate(
     definition = case_when(
       strata4 == 1 ~ paste0("> ", round(bfgso_arr_design$above_black*100,2), "% NH Black"),
       strata4 == 2 ~ paste0("> ", round(bfgso_arr_design$above_hisp*100,2), "% Hisp"),
       strata4 == 3 ~ paste0("> ", round(bfgso_arr_design$above_minor*100,2), "% minority"),
-      strata4 == 4 ~ "Mostly NH White")
-  ) %>% select(strata4,definition, tracts, starts_with("n2")) %>%
+      strata4 == 4 ~ "Mostly NH White"),
+    rate_per1k = n2_field/pop*1000
+  ) %>% select(strata4, definition, rate_per1k, tracts, starts_with("n2")) %>%
   mutate(across(where(is.numeric),round)) %>%
   janitor::adorn_totals("row") %>%
   maybe_kable()
 ```
 
-
+The sampling rate of Hispanics can be reduced to improve the design effect.
 
 ### optim: Nelder-Mead
 
@@ -377,15 +399,14 @@ st_nm_arr_design <- design4_arr(
   lop2=st_nm_arr$par[5], 
   lop3=st_nm_arr$par[6])
 st_nm_arr_design$sample_design %>% 
-  mutate(s_rate = 1000*n2_field/pop) %>%
-  select(-pop, -black, -hisp, -RR) %>% 
   mutate(
     definition = case_when(
-      strata4 == 1 ~ paste0("> ", round(st_nm_arr_design$above_black*100,2), "% NH Black"),
-      strata4 == 2 ~ paste0("> ", round(st_nm_arr_design$above_hisp*100,2), "% Hisp"),
-      strata4 == 3 ~ paste0("> ", round(st_nm_arr_design$above_minor*100,2), "% minority"),
-      strata4 == 4 ~ "Mostly NH White")
-  ) %>% select(strata4,definition, tracts, s_rate, starts_with("n2")) %>%
+      strata4 == 1 ~ paste0("> ", round(bfgso_arr_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(bfgso_arr_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(bfgso_arr_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White"),
+    rate_per1k = n2_field/pop*1000
+  ) %>% select(strata4, definition, rate_per1k, tracts, starts_with("n2")) %>%
   mutate(across(where(is.numeric),round)) %>%
   janitor::adorn_totals("row") %>%
   maybe_kable()
@@ -418,15 +439,14 @@ st_nm2_arr_design <- design4_arr(
   lop2=st_nm2_arr$par[5], 
   lop3=st_nm2_arr$par[6])
 st_nm2_arr_design$sample_design %>% 
-  mutate(s_rate = 1000*n2_field/pop) %>%
-  select(-pop, -black, -hisp, -RR) %>% 
   mutate(
     definition = case_when(
-      strata4 == 1 ~ paste0("> ", round(st_nm2_arr_design$above_black*100,2), "% NH Black"),
-      strata4 == 2 ~ paste0("> ", round(st_nm2_arr_design$above_hisp*100,2), "% Hisp"),
-      strata4 == 3 ~ paste0("> ", round(st_nm2_arr_design$above_minor*100,2), "% minority"),
-      strata4 == 4 ~ "Mostly NH White")
-  ) %>% select(strata4,definition, tracts, s_rate, starts_with("n2")) %>%
+      strata4 == 1 ~ paste0("> ", round(bfgso_arr_design$above_black*100,2), "% NH Black"),
+      strata4 == 2 ~ paste0("> ", round(bfgso_arr_design$above_hisp*100,2), "% Hisp"),
+      strata4 == 3 ~ paste0("> ", round(bfgso_arr_design$above_minor*100,2), "% minority"),
+      strata4 == 4 ~ "Mostly NH White"),
+    rate_per1k = n2_field/pop*1000
+  ) %>% select(strata4, definition, rate_per1k, tracts, starts_with("n2")) %>%
   mutate(across(where(is.numeric),round)) %>%
   janitor::adorn_totals("row") %>%
   maybe_kable()
@@ -434,7 +454,10 @@ st_nm2_arr_design$sample_design %>%
 
 DEFF is successful at `r st_nm2_arr_design$deff`.
 
-
+The difference in results depending on the starting values indicates 
+that the problem may not have a well-defined solution. It must have a global 
+optimum somewhere based on an exhaustive way to define strata and sampling rates,
+but whether we are finding it in any of the above is impossible to tell.
 
 ## R Markdown
 
