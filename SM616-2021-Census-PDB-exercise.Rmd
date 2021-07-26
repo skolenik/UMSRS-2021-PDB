@@ -499,6 +499,28 @@ Does offering the instrument in Spanish really save money?
 
 ---
 
+## Optimization resources
+
+This is what Stas has found on his bookshelf.
+
+Mentions in the sampling books:
+
+- [Valliant, Dever and Kreuter (2013)](https://link.springer.com/chapter/10.1007/978-1-4614-6449-5_5),
+  Chapter 5
+  
+General statistical computing references:
+
+- [Givens and Hoeting (2012)](https://www.stat.colostate.edu/computationalstatistics/), 
+  optimization is covered in Chapters 2--3
+- [Altman, Gill and McDonald (2004)](https://www.amazon.com/Sensitivity-Analysis-Regression-Probability-Statistics-ebook/dp/B000W14Q8E)
+- [Monahan (2011)](https://www4.stat.ncsu.edu/~monahan/nmos2/toc.html), optimization is covered in Chapter 8
+
+Open courses:
+
+- [MIT 18.300](https://ocw.mit.edu/courses/mathematics/18-330-introduction-to-numerical-analysis-spring-2012/syllabus/)
+
+---
+
 ## R Markdown
 
 This is an R Markdown `library(xaringan)` presentation. 
